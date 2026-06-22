@@ -430,6 +430,9 @@ table.dp .hl { color: var(--green); font-weight: 700; }
             <span class="badge"><i data-lucide="shopping-bag" class="inline w-3.5 h-3.5 mr-1"></i>O Problema</span>
             <h2 class="text-4xl md:text-5xl font-black mt-4">Mochila 0/1 — Formulação</h2>
         </div>
+        <div class="card mb-4">
+            <div id="knapsack-viz" style="height:200px;"></div>
+        </div>
         <div class="card mb-6">
             <div class="text-center">
                 <p class="text-lg subtle mb-3">Dados <strong>n</strong> itens com peso <strong>wᵢ</strong> e valor <strong>vᵢ</strong>, e capacidade <strong>W</strong>:</p>
@@ -995,8 +998,8 @@ function initSlideViz(idx) {
     vizInit[idx] = true;
     switch (idx) {
         case 3: initTheoryViz(); break;
-        case 4: initProblemViz(); break;
-        case 5: initRecurrenceViz(); break;
+        case 4: initProblemViz(); initKnapsackViz(); break;
+        case 5: initRecurrenceViz(); initForkViz(); break;
         case 8: initResultsViz(); break;
         case 10: initAnalysisViz(); break;
     }
@@ -1390,6 +1393,187 @@ function initAnalysisViz() {
         .attr('stroke-dasharray', '4,3')
         .attr('opacity', 0)
         .transition().delay(1500).duration(500).attr('opacity', 0.4);
+}
+
+function initKnapsackViz() {
+    const container = document.getElementById('knapsack-viz');
+    if (!container) return;
+    const w = container.clientWidth || 600;
+    const h = 200;
+    const svg = d3.select(container).append('svg').attr('width', w).attr('height', h);
+
+    // Items: [peso, valor, nome]
+    const items = [[2,3,'A'],[3,4,'B'],[4,5,'C'],[5,6,'D']];
+    const cap = 8;
+    const optimal = new Set([1,3]); // items B and D (0-indexed)
+    const colors = ['rgba(255,144,77,0.3)','rgba(0,206,201,0.2)','rgba(162,155,254,0.3)','rgba(255,144,77,0.4)'];
+
+    // Bag outline
+    const bagX = w * 0.55, bagW = w * 0.38, bagH = h - 30, bagY = 15;
+    svg.append('path')
+        .attr('d', 'M' + bagX + ',15 L' + (bagX + bagW) + ',15 L' + (bagX + bagW) + ',' + (bagY + bagH) + ' L' + bagX + ',' + (bagY + bagH) + ' Z')
+        .attr('fill', 'rgba(255,255,255,0.02)')
+        .attr('stroke', 'var(--softer)')
+        .attr('stroke-width', 1.5)
+        .attr('stroke-dasharray', '6,3')
+        .attr('rx', 4);
+
+    // Label
+    svg.append('text')
+        .attr('x', bagX + bagW / 2).attr('y', bagY + bagH + 16)
+        .attr('text-anchor', 'middle')
+        .attr('fill', 'var(--softer)')
+        .attr('font-size', '10px')
+        .text('Capacidade: ' + cap + ' kg');
+
+    // Animate items
+    let usedH = 0;
+    items.forEach((item, idx) => {
+        const [peso, valor, nome] = item;
+        const itemW = Math.min(50 + peso * 10, 120);
+        const itemH = 22;
+        const startX = 8 + idx * 32;
+        const startY = bagY + 20;
+        const isOpt = optimal.has(idx);
+
+        const g = svg.append('g');
+
+        // Item rect in starting position
+        g.append('rect')
+            .attr('x', startX).attr('y', startY)
+            .attr('width', itemW).attr('height', itemH)
+            .attr('rx', 4)
+            .attr('fill', colors[idx])
+            .attr('stroke', isOpt ? 'var(--green)' : '#ff7675')
+            .attr('stroke-width', 1.5)
+            .attr('opacity', 0);
+
+        // Item label
+        g.append('text')
+            .attr('x', startX + itemW / 2).attr('y', startY + itemH / 2 + 1)
+            .attr('text-anchor', 'middle')
+            .attr('fill', isOpt ? 'var(--green)' : 'var(--softer)')
+            .attr('font-size', '9px')
+            .attr('font-weight', '600')
+            .attr('opacity', 0)
+            .text(nome + ' (' + peso + 'kg,R$' + valor + ')');
+
+        // Animate: appear, then move
+        g.transition().delay(idx * 200).duration(400).attr('opacity', 1);
+
+        if (isOpt) {
+            const targetX = bagX + 12;
+            const targetY = bagY + 10 + usedH;
+            usedH += itemH + 4;
+            g.select('rect').transition().delay(idx * 200 + 600).duration(700).ease(d3.easeQuadInOut)
+                .attr('x', targetX).attr('y', targetY);
+            g.select('text').transition().delay(idx * 200 + 600).duration(700).ease(d3.easeQuadInOut)
+                .attr('x', targetX + itemW / 2).attr('y', targetY + itemH / 2 + 1);
+        } else {
+            // Rejected: fade out and strike
+            g.select('text').transition().delay(idx * 200 + 600).duration(400)
+                .attr('opacity', 0.3).attr('fill', '#ff7675');
+
+            // Strike line
+            const lw = itemW + 10;
+            svg.append('line')
+                .attr('x1', startX - 5).attr('y1', startY + itemH / 2)
+                .attr('x2', startX + lw).attr('y2', startY + itemH / 2)
+                .attr('stroke', '#ff7675')
+                .attr('stroke-width', 1)
+                .attr('opacity', 0)
+                .transition().delay(idx * 200 + 800).duration(300)
+                .attr('opacity', 0.5);
+        }
+    });
+
+    // Result line
+    svg.append('text')
+        .attr('x', w / 2).attr('y', h - 4)
+        .attr('text-anchor', 'middle')
+        .attr('fill', 'var(--green)')
+        .attr('font-size', '11px')
+        .attr('font-weight', '700')
+        .attr('opacity', 0)
+        .text('✓ Seleção ótima: itens {B, D} · Peso: 8kg · Valor: R$10')
+        .transition().delay(2800).duration(500).attr('opacity', 1);
+}
+
+function initForkViz() {
+    const container = document.getElementById('recurrence-viz');
+    if (!container) return;
+    // Only add if we haven't already (recurrence-viz already populated by initRecurrenceViz)
+    const existing = container.querySelector('.fork-svg');
+    if (existing) return;
+
+    const svgEl = document.createElement('div');
+    svgEl.className = 'fork-svg';
+    svgEl.style.marginTop = '10px';
+    container.appendChild(svgEl);
+    const w = container.clientWidth || 600;
+    const h = 90;
+    const svg = d3.select(svgEl).append('svg').attr('width', w).attr('height', h);
+
+    const cx = w / 2;
+    const colors = ['var(--softer)', 'var(--green)', 'var(--primary)'];
+
+    // Root node
+    svg.append('circle').attr('cx', cx).attr('cy', 18).attr('r', 0)
+        .attr('fill', 'var(--primary)').transition().delay(200).duration(400).attr('r', 6);
+
+    // Branch left: Não Incluir
+    svg.append('line')
+        .attr('x1', cx).attr('y1', 24).attr('x2', cx - 100).attr('y2', 60)
+        .attr('stroke', 'var(--softer)').attr('stroke-width', 1.5)
+        .attr('opacity', 0)
+        .transition().delay(500).duration(400).attr('opacity', 0.5);
+
+    svg.append('rect')
+        .attr('x', cx - 155).attr('y', 62).attr('width', 110).attr('height', 22)
+        .attr('rx', 6).attr('fill', 'rgba(255,255,255,0.03)')
+        .attr('stroke', 'var(--softer)').attr('stroke-width', 1)
+        .attr('opacity', 0)
+        .transition().delay(700).duration(300).attr('opacity', 1);
+
+    svg.append('text')
+        .attr('x', cx - 100).attr('y', 76).attr('text-anchor', 'middle')
+        .attr('fill', 'var(--softer)').attr('font-size', '9px')
+        .attr('font-family', 'JetBrains Mono, monospace')
+        .text('dp[i−1][w]')
+        .attr('opacity', 0)
+        .transition().delay(900).duration(300).attr('opacity', 1);
+
+    // Branch right: Incluir
+    svg.append('line')
+        .attr('x1', cx).attr('y1', 24).attr('x2', cx + 100).attr('y2', 60)
+        .attr('stroke', 'var(--green)').attr('stroke-width', 1.5)
+        .attr('opacity', 0)
+        .transition().delay(600).duration(400).attr('opacity', 0.5);
+
+    svg.append('rect')
+        .attr('x', cx + 45).attr('y', 62).attr('width', 130).attr('height', 22)
+        .attr('rx', 6).attr('fill', 'rgba(0,206,201,0.05)')
+        .attr('stroke', 'var(--green)').attr('stroke-width', 1)
+        .attr('opacity', 0)
+        .transition().delay(800).duration(300).attr('opacity', 1);
+
+    svg.append('text')
+        .attr('x', cx + 110).attr('y', 76).attr('text-anchor', 'middle')
+        .attr('fill', 'var(--green)').attr('font-size', '9px')
+        .attr('font-family', 'JetBrains Mono, monospace')
+        .text('dp[i−1][w−wᵢ] + vᵢ')
+        .attr('opacity', 0)
+        .transition().delay(1000).duration(300).attr('opacity', 1);
+
+    // MAX label
+    svg.append('circle').attr('cx', cx).attr('cy', 78).attr('r', 0)
+        .attr('fill', 'var(--primary)').transition().delay(1200).duration(300).attr('r', 4);
+    svg.append('text')
+        .attr('x', cx).attr('y', 92).attr('text-anchor', 'middle')
+        .attr('fill', 'var(--primary)').attr('font-size', '8px').attr('font-weight', '600')
+        .text('max')
+        .attr('opacity', 0)
+        .transition().delay(1400).duration(300).attr('opacity', 1);
 }
 
 // ====================================================================
