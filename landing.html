@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mochila 0/1 — Programação Dinâmica</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+    --primary: #FF904D; --bg: #0a0a0f; --surface: #12121a;
+    --border: #1e1e2a; --text: #e8e8ed;
+    --soft: rgba(255,255,255,0.55); --softer: rgba(255,255,255,0.30);
+    --green: #00cec9; --purple: #a29bfe;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; }
+
+#particles-canvas { position:fixed; inset:0; z-index:0; pointer-events:none; opacity:0.35; }
+
+/* ── NAV ── */
+#top-nav {
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    background:rgba(10,10,15,0.9); backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center; gap:4px;
+    padding:0 16px; height:50px; overflow-x:auto;
+    transition:transform 0.3s ease;
+}
+#top-nav.hidden { transform:translateY(-100%); }
+#top-nav a {
+    color:var(--softer); text-decoration:none; font-size:11px; font-weight:600;
+    padding:6px 10px; border-radius:6px; white-space:nowrap;
+    transition:color 0.2s, background 0.2s;
+}
+#top-nav a:hover, #top-nav a.active { color:var(--primary); background:rgba(255,144,77,0.08); }
+
+/* ── SECTIONS ── */
+.section {
+    position:relative; z-index:1;
+    max-width:1100px; margin:0 auto;
+    padding:80px 40px;
+    min-height:60vh; display:flex; flex-direction:column; justify-content:center;
+}
+.section-hero {
+    min-height:100vh; padding-top:100px; text-align:center;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+}
+
+.primary { color:var(--primary); }
+.green { color:var(--green); }
+.subtle { color:var(--soft); }
+.faint { color:var(--softer); }
+
+.card {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:14px; padding:32px;
+    transition:transform 0.3s ease;
+}
+.card:hover { transform:translateY(-4px); }
+
+.badge {
+    display:inline-block;
+    background:rgba(255,144,77,0.12); border:1px solid rgba(255,144,77,0.25);
+    border-radius:999px; padding:6px 16px;
+    font-size:12px; color:var(--primary); font-weight:600;
+    letter-spacing:0.05em; text-transform:uppercase;
+}
+.tag {
+    display:inline-block; background:rgba(255,255,255,0.04);
+    border:1px solid rgba(255,255,255,0.08); border-radius:999px;
+    padding:4px 12px; font-size:12px; color:var(--soft);
+    transition:all 0.3s ease;
+}
+.tag:hover { border-color:var(--primary); color:var(--primary); }
+
+.code-block {
+    background:rgba(0,0,0,0.4); border:1px solid var(--border);
+    border-radius:10px; padding:20px 24px;
+    font-family:'JetBrains Mono',monospace; font-size:13px;
+    line-height:1.6; overflow-x:auto;
+}
+.formula {
+    font-family:'JetBrains Mono',monospace;
+    background:rgba(0,0,0,0.3); border:1px solid var(--border);
+    border-radius:10px; padding:16px 24px; text-align:center; font-size:18px;
+}
+
+/* Table DP */
+table.dp {
+    border-collapse:collapse; font-family:'JetBrains Mono',monospace;
+    font-size:14px; margin:0 auto;
+}
+table.dp th, table.dp td {
+    padding:8px 14px; text-align:center; border:1px solid var(--border); min-width:44px;
+}
+table.dp th { background:rgba(255,255,255,0.04); color:var(--softer); font-weight:600; font-size:12px; }
+table.dp td { color:var(--soft); }
+table.dp .hl-cell { background:rgba(0,206,201,0.12); color:var(--green); font-weight:700; }
+table.dp .result { background:rgba(0,206,201,0.2); color:var(--green); font-weight:900; font-size:18px; }
+
+/* ── Reveal on scroll ── */
+.reveal {
+    opacity:0; transform:translateY(30px);
+    transition:opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1);
+}
+.reveal.visible { opacity:1; transform:translateY(0); }
+.reveal-d1 { transition-delay:0.05s; } .reveal-d2 { transition-delay:0.1s; } .reveal-d3 { transition-delay:0.15s; }
+.reveal-d4 { transition-delay:0.2s; } .reveal-d5 { transition-delay:0.25s; } .reveal-d6 { transition-delay:0.3s; }
+.reveal-d7 { transition-delay:0.35s; } .reveal-d8 { transition-delay:0.4s; }
+
+/* ── SIMULATOR ── */
+.sim-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.sim-panel { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:16px; }
+.sim-title { font-size:13px; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; color:var(--soft); margin-bottom:12px; display:flex; align-items:center; gap:8px; }
+.sim-dot { width:8px; height:8px; border-radius:50%; background:var(--primary); box-shadow:0 0 8px var(--primary); }
+.sim-dot-green { background:var(--green); box-shadow:0 0 8px var(--green); }
+.sim-input { background:var(--bg); border:1px solid var(--border); border-radius:6px; padding:7px 10px; color:var(--text); font-size:13px; outline:none; }
+.sim-input:focus { border-color:var(--primary); }
+.sim-input-row { display:flex; gap:6px; margin-bottom:8px; }
+.sim-btn { padding:7px 14px; border:none; border-radius:6px; font-size:13px; font-weight:600; cursor:pointer; transition:all 0.2s; white-space:nowrap; }
+.sim-btn-add { background:var(--primary); color:#000; }
+.sim-btn-add:hover { opacity:0.9; }
+.sim-btn-solve { background:var(--green); color:#000; }
+.sim-btn-solve:hover { opacity:0.9; }
+.sim-btn-example { background:transparent; border:1px solid var(--border); color:var(--soft); }
+.sim-btn-example:hover { border-color:var(--primary); color:var(--primary); }
+.sim-btn-clear { background:transparent; border:1px solid var(--border); color:var(--soft); }
+.sim-btn-clear:hover { border-color:#ff7675; color:#ff7675; }
+.sim-list { max-height:160px; overflow-y:auto; margin-bottom:8px; font-size:13px; }
+.sim-empty { text-align:center; color:var(--softer); padding:20px 10px; font-size:13px; }
+.sim-item { display:grid; grid-template-columns:28px 1fr 60px 60px 24px; gap:4px; align-items:center; padding:5px 0; border-bottom:1px solid var(--border); font-size:12px; }
+.sim-item .sim-idx { color:var(--softer); font-weight:600; }
+.sim-item .sim-val { color:var(--soft); text-align:right; }
+.sim-item button { background:none; border:none; color:#ff7675; cursor:pointer; opacity:0.5; font-size:15px; }
+.sim-item button:hover { opacity:1; }
+.sim-cap-row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:8px; padding-top:8px; border-top:1px solid var(--border); }
+.sim-cap-row label { font-size:12px; color:var(--soft); white-space:nowrap; }
+.sim-cap-row .sim-input { width:90px; flex:none; }
+.sim-kpis { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px; }
+.sim-kpi { background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:12px; text-align:center; }
+.sim-kpi .sim-kpi-label { font-size:10px; color:var(--softer); text-transform:uppercase; letter-spacing:0.04em; }
+.sim-kpi .sim-kpi-value { font-size:22px; font-weight:700; margin-top:2px; }
+.sim-kpi .sim-kpi-sub { font-size:10px; color:var(--softer); margin-top:1px; }
+.sim-compare { width:100%; border-collapse:collapse; font-size:11px; margin-bottom:10px; }
+.sim-compare th { text-align:left; color:var(--softer); font-weight:500; padding:5px 6px; border-bottom:1px solid var(--border); }
+.sim-compare td { padding:5px 6px; border-bottom:1px solid var(--border); color:var(--soft); }
+.sim-compare .fast { color:var(--green); font-weight:600; }
+.sim-tags { display:flex; flex-wrap:wrap; gap:4px; }
+.sim-tag { padding:3px 8px; border-radius:4px; font-size:10px; border:1px solid var(--border); }
+.sim-tag.selected { background:rgba(0,206,201,0.12); border-color:rgba(0,206,201,0.3); color:var(--green); }
+.sim-tag.rejected { opacity:0.35; text-decoration:line-through; }
+.sim-bar { margin-bottom:10px; }
+.sim-bar-label { font-size:10px; color:var(--softer); margin-bottom:4px; }
+.sim-bar-track { height:16px; background:var(--bg); border-radius:8px; overflow:hidden; position:relative; }
+.sim-bar-fill { height:100%; border-radius:8px; transition:width 0.5s ease; background:linear-gradient(90deg,var(--primary),var(--green)); }
+.sim-bar-text { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:600; text-shadow:0 1px 3px rgba(0,0,0,0.5); }
+.sim-progress-bar { height:3px; background:var(--border); border-radius:2px; margin:8px 0; overflow:hidden; }
+.sim-progress-fill { height:100%; background:linear-gradient(90deg,var(--primary),var(--green)); border-radius:2px; transition:width 0.3s ease; width:0%; }
+.sim-step-info { font-size:11px; color:var(--softer); font-family:'JetBrains Mono',monospace; text-align:center; }
+.sim-animate-controls { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+.sim-speed-slider { width:80px; accent-color:var(--primary); cursor:pointer; }
+.sim-speed-label { font-size:11px; color:var(--softer); }
+.sim-d3-chart { width:100%; height:120px; margin-top:8px; }
+.sim-d3-chart svg { width:100%; height:100%; }
+#sim-viz-stage { width:100%; min-height:200px; overflow:auto; }
+#sim-viz-stage svg { display:block; margin:0 auto; }
+.sim-cell-current { fill:rgba(255,144,77,0.25) !important; stroke:var(--primary) !important; stroke-width:2 !important; }
+.sim-cell-done { fill:rgba(0,206,201,0.10) !important; }
+.sim-cell-optimal { fill:rgba(0,206,201,0.25) !important; stroke:var(--green) !important; stroke-width:2 !important; }
+.sim-cell-text { font-family:'JetBrains Mono',monospace; font-size:11px; fill:var(--soft); text-anchor:middle; }
+.sim-cell-text-done { fill:var(--green); font-weight:700; }
+
+@keyframes vizPulse { 0%,100% { opacity:0.5; } 50% { opacity:1; } }
+@keyframes vizArrow { 0%,100% { opacity:0.2; } 50% { opacity:0.8; } }
+.pulse-circle { animation:vizPulse 3s ease-in-out infinite; }
+.pulse-arrow { animation:vizArrow 2.5s ease-in-out infinite; }
+
+/* ── FOOTER ── */
+.site-footer {
+    position:relative; z-index:1;
+    text-align:center; padding:80px 40px;
+    border-top:1px solid var(--border);
+}
+
+@media (max-width:768px) {
+    .section { padding:60px 20px; }
+    .section-hero { padding-top:70px; }
+    #top-nav { gap:0; padding:0 8px; }
+    #top-nav a { font-size:10px; padding:4px 6px; }
+    .card { padding:20px; }
+    .code-block { font-size:11px; padding:12px 14px; }
+    .formula { font-size:14px; padding:12px 16px; }
+    table.dp { font-size:11px; }
+    table.dp th, table.dp td { padding:4px 8px; min-width:30px; }
+    .sim-grid { grid-template-columns:1fr; }
+    .sim-list { max-height:120px; }
+    .sim-kpis { grid-template-columns:1fr; }
+}
+@media (max-width:480px) {
+    .section { padding:40px 12px; }
+    table.dp { font-size:9px; }
+    table.dp th, table.dp td { padding:3px 5px; min-width:22px; }
+}
+</style>
+</head>
+<body>
+<canvas id="particles-canvas"></canvas>
+
+<!-- NAV -->
+<nav id="top-nav">
+    <a href="#hero">Home</a>
+    <a href="#intro">Intro</a>
+    <a href="#theory">Teoria</a>
+    <a href="#problem">Problema</a>
+    <a href="#recurrence">Recorrência</a>
+    <a href="#table">Tabela</a>
+    <a href="#code">Código</a>
+    <a href="#simulator">Simulador</a>
+    <a href="#results">Resultados</a>
+    <a href="#analysis">Análise</a>
+    <a href="#applications">Aplicações</a>
+</nav>
+
+<!-- HERO -->
+<section class="section section-hero" id="hero">
+    <div class="reveal reveal-d1">
+        <span class="badge"><i data-lucide="cpu" class="inline w-3.5 h-3.5 mr-1"></i>Projeto e Análise de Algoritmos · UFC</span>
+    </div>
+    <h1 class="text-5xl md:text-7xl font-black leading-tight my-6 reveal reveal-d2">
+        Programação Dinâmica Aplicada<br>ao Problema da <span class="primary">Mochila 0/1</span>
+    </h1>
+    <p class="text-lg md:text-xl subtle max-w-2xl mx-auto mb-8 leading-relaxed reveal reveal-d3">
+        Implementação bottom-up em JavaScript com duas versões:<br>
+        <span class="font-mono text-sm bg-white/5 px-2 py-0.5 rounded">O(n·W)</span> matricial e <span class="font-mono text-sm bg-white/5 px-2 py-0.5 rounded">O(W)</span> otimizada
+    </p>
+    <div class="flex items-center justify-center gap-6 text-sm faint flex-wrap reveal reveal-d4">
+        <span><i data-lucide="user" class="inline w-4 h-4 mr-1 primary"></i>Kumbu Gomes Kuwonza</span>
+        <span><i data-lucide="calendar" class="inline w-4 h-4 mr-1 primary"></i>Junho de 2026</span>
+        <span><i data-lucide="map-pin" class="inline w-4 h-4 mr-1 primary"></i>UFC — Campus de Russas</span>
+    </div>
+    <div class="mt-12 text-xs faint animate-bounce reveal reveal-d6">↓ Role para explorar</div>
+</section>
+
+<!-- INTRO -->
+<section class="section" id="intro">
+    <div class="text-center mb-10 reveal">
+        <span class="badge"><i data-lucide="book-open" class="inline w-3.5 h-3.5 mr-1"></i>Seção 1</span>
+        <h2 class="text-4xl md:text-5xl font-black mt-4">Introdução</h2>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="card reveal reveal-d1">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center"><i data-lucide="zap" class="w-5 h-5 primary"></i></div>
+                <h3 class="font-bold">O que é Programação Dinâmica?</h3>
+            </div>
+            <p class="text-sm subtle leading-relaxed">Técnica algorítmica que decompõe problemas complexos em subproblemas menores, resolvendo cada um <strong>uma única vez</strong> e armazenando os resultados para consulta futura.</p>
+        </div>
+        <div class="card reveal reveal-d2">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center"><i data-lucide="target" class="w-5 h-5 primary"></i></div>
+                <h3 class="font-bold">Objetivo do Trabalho</h3>
+            </div>
+            <p class="text-sm subtle leading-relaxed">Investigar a aplicação da DP ao problema da Mochila 0/1, consolidando a compreensão teórica e demonstrando a aplicação prática em JavaScript.</p>
+        </div>
+        <div class="card md:col-span-2 reveal reveal-d3">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center"><i data-lucide="lightbulb" class="w-5 h-5 primary"></i></div>
+                <h3 class="font-bold">Por que a Mochila 0/1?</h3>
+            </div>
+            <p class="text-sm subtle leading-relaxed">Problema canônico da otimização combinatória (NP-difícil) que exemplifica perfeitamente as duas propriedades fundamentais da DP: <span class="primary">subestrutura ótima</span> e <span class="green">sobreposição de subproblemas</span>.</p>
+        </div>
+    </div>
+</section>
+
+<!-- THEORY -->
+<section class="section" id="theory">
+    <div class="text-center mb-10 reveal">
+        <span class="badge"><i data-lucide="book-open" class="inline w-3.5 h-3.5 mr-1"></i>Seção 2</span>
+        <h2 class="text-4xl md:text-5xl font-black mt-4">Fundamentação Teórica</h2>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="card reveal reveal-d1">
+            <h3 class="font-bold text-lg mb-3">Duas Propriedades Essenciais</h3>
+            <div class="space-y-4">
+                <div>
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="w-2 h-2 rounded-full bg-[#FF904D]"></span>
+                        <span class="font-semibold text-sm">Subestrutura Ótima</span>
+                    </div>
+                    <p class="text-xs subtle">A solução ótima do problema contém as soluções ótimas de seus subproblemas.</p>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="w-2 h-2 rounded-full" style="background:var(--green)"></span>
+                        <span class="font-semibold text-sm">Sobreposição de Subproblemas</span>
+                    </div>
+                    <p class="text-xs subtle">O mesmo par (i, w) é visitado repetidamente — evitamos recalcular com tabela.</p>
+                </div>
+            </div>
+        </div>
+        <div class="card reveal reveal-d2">
+            <h3 class="font-bold text-lg mb-3">Memoização vs Tabelamento</h3>
+            <div class="space-y-4">
+                <div>
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="w-2 h-2 rounded-full bg-[#FF904D]"></span>
+                        <span class="font-semibold text-sm">Memoização (Top-Down)</span>
+                    </div>
+                    <p class="text-xs subtle">Recursão com cache. Resolve apenas subproblemas necessários.</p>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="w-2 h-2 rounded-full" style="background:var(--green)"></span>
+                        <span class="font-semibold text-sm">Tabelamento (Bottom-Up) ✓</span>
+                    </div>
+                    <p class="text-xs subtle">Iterativo, preenche a tabela dos casos base até o resultado final. <span class="green">Adotado neste trabalho.</span></p>
+                </div>
+            </div>
+            <div class="mt-4 pt-4 border-t border-[var(--border)]">
+                <p class="text-xs faint">Richard Bellman (1950) — Princípio da Otimalidade</p>
+            </div>
+        </div>
+    </div>
+    <div class="card mt-4 reveal reveal-d3" id="theory-viz" style="padding:12px;"></div>
+</section>
+
+<!-- PROBLEM -->
+<section class="section" id="problem">
+    <div class="text-center mb-8 reveal">
+        <span class="badge"><i data-lucide="shopping-bag" class="inline w-3.5 h-3.5 mr-1"></i>O Problema</span>
+        <h2 class="text-4xl md:text-5xl font-black mt-4">Mochila 0/1 — Formulação</h2>
+    </div>
+    <div class="card mb-6 reveal reveal-d1">
+        <div class="text-center">
+            <p class="text-lg subtle mb-3">Dados <strong>n</strong> itens com peso <strong>wᵢ</strong> e valor <strong>vᵢ</strong>, e capacidade <strong>W</strong>:</p>
+            <div class="formula my-5">
+                <span class="text-2xl font-black primary">Maximizar</span>
+                <span class="text-xl font-bold mx-2">∑(vᵢ · xᵢ)</span>
+                <span class="subtle text-base">, sujeito a</span>
+                <span class="text-xl font-bold mx-2">∑(wᵢ · xᵢ) ≤ W</span>
+                <span class="subtle text-base">,</span>
+                <span class="text-xl font-bold green">xᵢ ∈ {0, 1}</span>
+            </div>
+            <p class="text-sm subtle">Decisão binária: <span class="primary font-semibold">levar (1)</span> ou <span class="faint font-semibold">não levar (0)</span></p>
+        </div>
+    </div>
+    <div class="card reveal reveal-d2" id="problem-viz" style="padding:12px;"></div>
+</section>
+
+<!-- RECURRENCE -->
+<section class="section" id="recurrence">
+    <div class="text-center mb-8 reveal">
+        <span class="badge"><i data-lucide="function-square" class="inline w-3.5 h-3.5 mr-1"></i>Recorrência</span>
+        <h2 class="text-4xl md:text-5xl font-black mt-4">Definição da Recorrência</h2>
+    </div>
+    <div class="card mb-6 reveal reveal-d1">
+        <p class="text-sm subtle mb-4 text-center">
+            Seja <span class="font-mono bg-white/5 px-1.5 py-0.5 rounded">dp[i][w]</span> o valor máximo considerando os primeiros <strong>i</strong> itens com capacidade <strong>w</strong>:
+        </p>
+        <div class="formula text-base md:text-lg leading-relaxed">
+            <span class="primary font-bold text-xl">dp[i][w]</span> = max( <span class="subtle">dp[i−1][w]</span> , <span class="green">dp[i−1][w−wᵢ] + vᵢ</span> )
+            <br><span class="text-sm faint">se wᵢ ≤ w</span>
+            <span class="text-sm faint mx-3">|</span>
+            <span class="text-sm faint">senão: dp[i][w] = dp[i−1][w]</span>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+            <div class="bg-white/5 rounded-lg p-4">
+                <p class="text-xs font-semibold subtle mb-1"><span class="primary">→</span> Não incluir</p>
+                <p class="text-xs faint">Herda o valor da linha anterior com mesma capacidade</p>
+            </div>
+            <div class="bg-white/5 rounded-lg p-4">
+                <p class="text-xs font-semibold subtle mb-1"><span class="green">→</span> Incluir</p>
+                <p class="text-xs faint">Soma o valor do item à melhor solução com capacidade reduzida</p>
+            </div>
+        </div>
+    </div>
+    <div class="card reveal reveal-d2" id="recurrence-viz" style="padding:12px;"></div>
+</section>
+
+<!-- TABLE -->
+<section class="section" id="table">
+    <div class="text-center mb-8 reveal">
+        <span class="badge"><i data-lucide="grid" class="inline w-3.5 h-3.5 mr-1"></i>Exemplo</span>
+        <h2 class="text-4xl md:text-5xl font-black mt-4">Construção da Tabela DP</h2>
+        <p class="subtle mt-2 text-sm">Caso didático: 4 itens, capacidade 8 toneladas</p>
+    </div>
+    <div class="card overflow-x-auto reveal reveal-d1">
+        <table class="dp">
+            <tr><th>i \ w</th><th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th></tr>
+            <tr><th>0</th><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+            <tr><th>1 (2,3)</th><td>0</td><td>0</td><td>3</td><td>3</td><td>3</td><td>3</td><td>3</td><td>3</td><td>3</td></tr>
+            <tr><th>2 (3,4)</th><td>0</td><td>0</td><td>3</td><td class="hl-cell">4</td><td>4</td><td>7</td><td>7</td><td>7</td><td>7</td></tr>
+            <tr><th>3 (4,5)</th><td>0</td><td>0</td><td>3</td><td class="hl-cell">4</td><td>5</td><td>7</td><td>8</td><td>9</td><td>9</td></tr>
+            <tr><th>4 (5,6)</th><td>0</td><td>0</td><td>3</td><td class="hl-cell">4</td><td>5</td><td>7</td><td>8</td><td>9</td><td class="result">10</td></tr>
+        </table>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+        <div class="card reveal reveal-d2">
+            <h3 class="font-semibold text-sm mb-1">Backtracking</h3>
+            <p class="text-xs subtle leading-relaxed"><span class="green">dp[4][8] = 10</span> → difere de dp[3][8] = 9 → <strong>Item 4 incluso</strong>. w = 3. dp[3][3] = dp[2][3] → Item 3 não. dp[2][3] ≠ dp[1][3] → <strong>Item 2 incluso</strong>. w = 0.</p>
+        </div>
+        <div class="card reveal reveal-d3">
+            <h3 class="font-semibold text-sm mb-1">Solução Ótima</h3>
+            <p class="text-xs subtle leading-relaxed">Itens: <span class="green font-bold">{2, 4}</span><br>Peso: 3 + 5 = <strong>8 ton</strong> (100%)<br>Valor: <span class="primary font-bold">R$ 10.000</span></p>
+        </div>
+    </div>
+</section>
+
+<!-- CODE -->
+<section class="section" id="code">
+    <div class="text-center mb-8 reveal">
+        <span class="badge"><i data-lucide="code-2" class="inline w-3.5 h-3.5 mr-1"></i>Implementação</span>
+        <h2 class="text-4xl md:text-5xl font-black mt-4">Duas Versões do Algoritmo</h2>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="card reveal reveal-d1">
+            <h3 class="font-bold text-sm mb-3"><span class="w-2.5 h-2.5 rounded-full inline-block mr-2" style="background:#FF904D"></span>Versão Matricial <span class="tag text-[10px] ml-2">O(n·W) espaço</span></h3>
+            <pre class="code-block text-[11px] md:text-[12px] leading-relaxed">function mochila01(pesos, valores, cap) {
+  const n = pesos.length;
+  const dp = Array.from(
+    { length: n+1 },
+    () => Array(cap+1).fill(0));
+  const keep = Array.from(
+    { length: n+1 },
+    () => Array(cap+1).fill(false));
+  for (let i = 1; i <= n; i++) {
+    for (let w = 0; w <= cap; w++) {
+      if (pesos[i-1] <= w) {
+        const sem = dp[i-1][w];
+        const com = dp[i-1][w-pesos[i-1]] + valores[i-1];
+        if (com > sem) {
+          dp[i][w] = com;
+          keep[i][w] = true;
+        } else dp[i][w] = sem;
+      } else dp[i][w] = dp[i-1][w];
+    }
+  }
+  // backtracking...
+}</pre>
+        </div>
+        <div class="card reveal reveal-d2">
+            <h3 class="font-bold text-sm mb-3"><span class="w-2.5 h-2.5 rounded-full inline-block mr-2" style="background:var(--green)"></span>Versão Otimizada <span class="tag text-[10px] ml-2">O(W) espaço</span></h3>
+            <pre class="code-block text-[11px] md:text-[12px] leading-relaxed">function mochila01Otimizada(pesos,valores,cap){
+  const n = pesos.length;
+  const dp = Array(cap+1).fill(0);
+  const keep = Array.from(
+    { length: n+1 },
+    () => Array(cap+1).fill(false));
+  for (let i = 1; i <= n; i++) {
+    for (let w = cap; w >= pesos[i-1]; w--) {
+      const com = dp[w-pesos[i-1]] + valores[i-1];
+      if (com > dp[w]) {
+        dp[w] = com;
+        keep[i][w] = true;
+      }
+    }
+  }
+  // backtracking (igual)...
+}</pre>
+            <div class="mt-3 pt-3 border-t border-[var(--border)]">
+                <p class="text-[11px] subtle"><span class="text-yellow-400">⚠</span> Loop decrescente evita reutilizar o mesmo item múltiplas vezes</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SIMULATOR -->
+<section class="section" id="simulator">
+    <div class="text-center mb-6 reveal">
+        <span class="badge"><i data-lucide="play-circle" class="inline w-3.5 h-3.5 mr-1"></i>Demo</span>
+        <h2 class="text-4xl md:text-5xl font-black mt-4">Simulador Interativo</h2>
+        <p class="subtle mt-1 text-sm">Adicione itens e execute os dois algoritmos ao vivo</p>
+    </div>
+    <div class="sim-grid reveal reveal-d1">
+        <div class="sim-panel">
+            <h3 class="sim-title"><span class="sim-dot"></span> Itens</h3>
+            <div class="sim-input-row">
+                <input type="text" id="sim-name" placeholder="Nome" class="sim-input" style="flex:2">
+                <input type="number" id="sim-weight" placeholder="Peso" min="1" class="sim-input" style="flex:1">
+                <input type="number" id="sim-value" placeholder="Valor" min="1" class="sim-input" style="flex:1">
+                <button class="sim-btn sim-btn-add" onclick="simAddItem()">+</button>
+            </div>
+            <div class="sim-list" id="sim-list">
+                <div class="sim-empty">Nenhum item. Adicione pesos e valores acima.</div>
+            </div>
+            <div class="sim-cap-row">
+                <label>Capacidade:</label>
+                <input type="number" id="sim-cap" value="8" min="1" class="sim-input">
+                <button class="sim-btn sim-btn-solve" onclick="simSolve()">▶ Executar</button>
+                <button class="sim-btn sim-btn-example" onclick="simExample()">Exemplo</button>
+                <button class="sim-btn sim-btn-clear" onclick="simClear()">Limpar</button>
+            </div>
+        </div>
+        <div class="sim-panel">
+            <h3 class="sim-title"><span class="sim-dot sim-dot-green"></span> Resultado</h3>
+            <div id="sim-viz-stage"><div class="sim-empty">Adicione itens e clique em <strong>Executar</strong>.</div></div>
+            <div class="sim-progress-bar" id="sim-progress-cont" style="display:none;"><div class="sim-progress-fill" id="sim-progress-fill"></div></div>
+            <div class="sim-animate-controls" id="sim-controls" style="display:none;">
+                <span class="sim-step-info" id="sim-step-info">Aguardando...</span>
+                <span class="sim-speed-label">Veloc:</span>
+                <input type="range" class="sim-speed-slider" id="sim-speed" min="2" max="50" value="20">
+            </div>
+            <div class="sim-d3-chart" id="sim-chart" style="display:none;"></div>
+            <div id="sim-result" style="display:none;"></div>
+        </div>
+    </div>
+</section>
+
+<!-- RESULTS -->
+<section class="section" id="results">
+    <div class="text-center mb-8 reveal">
+        <span class="badge"><i data-lucide="bar-chart-3" class="inline w-3.5 h-3.5 mr-1"></i>Resultados</span>
+        <h2 class="text-4xl md:text-5xl font-black mt-4">Benchmarks</h2>
+        <p class="subtle mt-2 text-sm">Teste: 100 itens aleatórios, capacidade 500</p>
+    </div>
+    <div class="card overflow-x-auto reveal reveal-d1">
+        <table class="dp w-full">
+            <tr><th>Métrica</th><th>Versão Matricial</th><th>Versão Otimizada</th></tr>
+            <tr><td class="text-left">Tempo de execução</td><td class="hl-cell">22,90 ms</td><td class="green font-bold">6,86 ms</td></tr>
+            <tr><td class="text-left">Valor máximo</td><td colspan="2" class="primary font-bold">2.526</td></tr>
+            <tr><td class="text-left">Itens selecionados</td><td colspan="2" class="primary font-bold">35 de 100</td></tr>
+            <tr><td class="text-left">Espaço (valores)</td><td>~50.000 células</td><td class="green font-bold">501 células</td></tr>
+        </table>
+    </div>
+    <div class="card mt-4 reveal reveal-d2" id="results-viz" style="padding:12px;"></div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+        <div class="card p-5 text-center reveal reveal-d2"><div class="text-3xl font-black green">3,3×</div><p class="text-xs subtle mt-1">Mais rápida</p><p class="text-[10px] faint">versão otimizada</p></div>
+        <div class="card p-5 text-center reveal reveal-d3"><div class="text-3xl font-black primary">100%</div><p class="text-xs subtle mt-1">Aproveitamento</p><p class="text-[10px] faint">em todos os cenários</p></div>
+        <div class="card p-5 text-center reveal reveal-d4"><div class="text-3xl font-black" style="color:var(--purple)">99×</div><p class="text-xs subtle mt-1">Menos memória</p><p class="text-[10px] faint">501 vs 50.000</p></div>
+    </div>
+</section>
+
+<!-- ANALYSIS -->
+<section class="section" id="analysis">
+    <div class="text-center mb-8 reveal">
+        <span class="badge"><i data-lucide="trending-up" class="inline w-3.5 h-3.5 mr-1"></i>Análise</span>
+        <h2 class="text-4xl md:text-5xl font-black mt-4">Complexidade Computacional</h2>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="card reveal reveal-d1">
+            <h3 class="font-bold mb-3">Complexidade de Tempo</h3>
+            <div class="text-center mb-4"><span class="text-4xl font-black primary">O(n · W)</span></div>
+            <ul class="space-y-2 text-sm subtle">
+                <li class="flex items-start gap-2"><span class="text-green mt-0.5">✓</span><span>Preenche <strong>(n+1) × (W+1)</strong> células</span></li>
+                <li class="flex items-start gap-2"><span class="text-green mt-0.5">✓</span><span>Cada célula: <strong>O(1)</strong> operações</span></li>
+                <li class="flex items-start gap-2"><span class="text-green mt-0.5">✓</span><span>Classificação: <span class="primary">pseudo-polinomial</span></span></li>
+            </ul>
+        </div>
+        <div class="card reveal reveal-d2">
+            <h3 class="font-bold mb-3">Complexidade de Espaço</h3>
+            <div class="space-y-3">
+                <div class="bg-white/5 rounded-lg p-3">
+                    <div class="flex justify-between items-center"><span class="text-sm">Matricial</span><span class="font-mono font-bold primary">O(n · W)</span></div>
+                    <p class="text-[11px] faint mt-1">dp[n+1][W+1] + keep[n+1][W+1]</p>
+                </div>
+                <div class="bg-white/5 rounded-lg p-3">
+                    <div class="flex justify-between items-center"><span class="text-sm">Otimizada</span><span class="font-mono font-bold green">O(W)</span></div>
+                    <p class="text-[11px] faint mt-1">dp[W+1] (vetor único) + keep</p>
+                </div>
+            </div>
+            <div class="mt-4 pt-4 border-t border-[var(--border)]">
+                <p class="text-[11px] faint"><span class="text-yellow-400">⚠</span> Pseudo-polinomial: a complexidade depende do <strong>valor</strong> de W, não do número de bits.</p>
+            </div>
+        </div>
+    </div>
+    <div class="card mt-4 reveal reveal-d3" id="analysis-viz" style="padding:12px;"></div>
+</section>
+
+<!-- APPLICATIONS -->
+<section class="section" id="applications">
+    <div class="text-center mb-10 reveal">
+        <span class="badge"><i data-lucide="globe" class="inline w-3.5 h-3.5 mr-1"></i>Seção 5</span>
+        <h2 class="text-4xl md:text-5xl font-black mt-4">Aplicações em Sistemas Reais</h2>
+    </div>
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="card p-5 text-center reveal reveal-d1">
+            <div class="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center mx-auto mb-3"><i data-lucide="truck" class="w-6 h-6 primary"></i></div>
+            <h3 class="font-bold text-sm">Transporte e Logística</h3>
+            <p class="text-xs subtle mt-2">Carregamento de veículos e roteirização de frotas</p>
+        </div>
+        <div class="card p-5 text-center reveal reveal-d2">
+            <div class="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center mx-auto mb-3"><i data-lucide="package" class="w-6 h-6 primary"></i></div>
+            <h3 class="font-bold text-sm">Gestão de Estoque</h3>
+            <p class="text-xs subtle mt-2">Produtos em espaços limitados de depósito</p>
+        </div>
+        <div class="card p-5 text-center reveal reveal-d3">
+            <div class="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center mx-auto mb-3"><i data-lucide="cloud" class="w-6 h-6 primary"></i></div>
+            <h3 class="font-bold text-sm">Computação em Nuvem</h3>
+            <p class="text-xs subtle mt-2">Alocação de VMs em servidores físicos</p>
+        </div>
+        <div class="card p-5 text-center reveal reveal-d4">
+            <div class="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center mx-auto mb-3"><i data-lucide="trending-up" class="w-6 h-6 primary"></i></div>
+            <h3 class="font-bold text-sm">Finanças</h3>
+            <p class="text-xs subtle mt-2">Seleção de carteira com orçamento limitado</p>
+        </div>
+    </div>
+    <div class="mt-6 text-center reveal reveal-d5">
+        <p class="text-sm subtle">Qualquer cenário de <strong>seleção ótima sob restrição de capacidade</strong> é uma instância da Mochila 0/1.</p>
+    </div>
+</section>
+
+<!-- CONCLUSION -->
+<section class="section" id="conclusion">
+    <div class="text-center mb-8 reveal">
+        <span class="badge"><i data-lucide="flag" class="inline w-3.5 h-3.5 mr-1"></i>Conclusão</span>
+        <h2 class="text-4xl md:text-5xl font-black mt-4">Considerações Finais</h2>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="card reveal reveal-d1">
+            <h3 class="font-bold mb-3">O que foi feito</h3>
+            <ul class="space-y-2 text-sm subtle">
+                <li class="flex items-start gap-2"><span class="text-green mt-0.5">✓</span><span>Fundamentação teórica completa da DP</span></li>
+                <li class="flex items-start gap-2"><span class="text-green mt-0.5">✓</span><span>Implementação <strong>matricial</strong> O(n·W) e <strong>otimizada</strong> O(W)</span></li>
+                <li class="flex items-start gap-2"><span class="text-green mt-0.5">✓</span><span>Interface web interativa</span></li>
+                <li class="flex items-start gap-2"><span class="text-green mt-0.5">✓</span><span>4 cenários de teste com 100% de aproveitamento</span></li>
+            </ul>
+        </div>
+        <div class="card reveal reveal-d2">
+            <h3 class="font-bold mb-3">Principais Descobertas</h3>
+            <ul class="space-y-2 text-sm subtle">
+                <li class="flex items-start gap-2"><span class="primary mt-0.5">→</span><span>Otimizada <strong>3,3× mais rápida</strong> que a matricial</span></li>
+                <li class="flex items-start gap-2"><span class="primary mt-0.5">→</span><span>Espaço: 50.000 → <strong>501 células</strong></span></li>
+                <li class="flex items-start gap-2"><span class="primary mt-0.5">→</span><span>Resultados <strong>idênticos</strong> em ambas as versões</span></li>
+                <li class="flex items-start gap-2"><span class="primary mt-0.5">→</span><span>DP reduz 2ⁿ → <strong>n·W</strong></span></li>
+            </ul>
+        </div>
+    </div>
+    <div class="card mt-6 p-5 text-center reveal reveal-d3">
+        <p class="text-sm subtle"><span class="text-2xl font-black primary">DP</span> transforma problemas NP-difíceis em soluções pseudo-polinomiais viáveis — um <em>trade-off</em> de espaço por tempo que viabiliza aplicações reais.</p>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+    <div class="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-6"><i data-lucide="graduation-cap" class="w-8 h-8 primary"></i></div>
+    <h1 class="text-5xl md:text-7xl font-black mb-4">Obrigado!</h1>
+    <p class="text-lg subtle max-w-lg mx-auto mb-8 leading-relaxed">Código-fonte, relatório completo e interface interativa disponíveis no repositório do projeto.</p>
+    <div class="inline-flex flex-wrap justify-center gap-3 mb-8">
+        <span class="tag px-4 py-2"><i data-lucide="terminal" class="inline w-4 h-4 mr-1 primary"></i>knapsack.js</span>
+        <span class="tag px-4 py-2"><i data-lucide="globe" class="inline w-4 h-4 mr-1 primary"></i>mochila-01.vercel.app</span>
+        <span class="tag px-4 py-2"><i data-lucide="github" class="inline w-4 h-4 mr-1 primary"></i>github.com/kumbu-kuwonza/mochila-01</span>
+    </div>
+    <p class="text-sm faint">Kumbu Gomes Kuwonza · UFC — Campus de Russas · Junho de 2026</p>
+</footer>
+
+<script>
+// ── PARTICLES ──
+const canvas = document.getElementById('particles-canvas');
+const ctx = canvas.getContext('2d');
+let particles = [];
+function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+resize(); window.addEventListener('resize', () => { resize(); initP(); });
+function initP() {
+    const c = Math.floor((canvas.width * canvas.height) / 12000);
+    particles = [];
+    for (let i=0;i<c;i++) particles.push({
+        x:Math.random()*canvas.width, y:Math.random()*canvas.height,
+        r:0.4+Math.random()*1.2, vx:(Math.random()-0.5)*0.3, vy:(Math.random()-0.5)*0.3,
+        alpha:0.15+Math.random()*0.35
+    });
+}
+initP();
+function drawP() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    for (let i=0;i<particles.length;i++) {
+        const p=particles[i]; p.x+=p.vx; p.y+=p.vy;
+        if(p.x<0)p.x=canvas.width; if(p.x>canvas.width)p.x=0;
+        if(p.y<0)p.y=canvas.height; if(p.y>canvas.height)p.y=0;
+        ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+        ctx.fillStyle='rgba(255,255,255,'+p.alpha+')'; ctx.fill();
+        for(let j=i+1;j<particles.length;j++){
+            const p2=particles[j],dx=p.x-p2.x,dy=p.y-p2.y,dist=dx*dx+dy*dy;
+            if(dist<12000){ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(p2.x,p2.y);
+            ctx.strokeStyle='rgba(255,144,77,'+(0.03*(1-dist/12000))+')';ctx.stroke();}
+        }
+    }
+    requestAnimationFrame(drawP);
+}
+drawP();
+
+// ── REVEAL ON SCROLL ──
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold:0.1 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// ── ACTIVE NAV LINK ──
+const sections = document.querySelectorAll('.section');
+const navLinks = document.querySelectorAll('#top-nav a');
+const navObserver = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+        if(e.isIntersecting) {
+            navLinks.forEach(l => l.classList.remove('active'));
+            const id = e.target.id;
+            const link = document.querySelector('#top-nav a[href="#'+id+'"]');
+            if(link) link.classList.add('active');
+        }
+    });
+}, { threshold:0.4 });
+sections.forEach(s => navObserver.observe(s));
+
+// ── KNACK ALGORITHMS ──
+function mochila01(pesos,valores,capacidade){const n=pesos.length;const dp=Array.from({length:n+1},()=>Array(capacidade+1).fill(0));const keep=Array.from({length:n+1},()=>Array(capacidade+1).fill(false));for(let i=1;i<=n;i++){const p=pesos[i-1],v=valores[i-1];for(let w=0;w<=capacidade;w++){if(p<=w){const sem=dp[i-1][w],com=dp[i-1][w-p]+v;if(com>sem){dp[i][w]=com;keep[i][w]=true}else dp[i][w]=sem}else dp[i][w]=dp[i-1][w]}}const itens=[];let w=capacidade;for(let i=n;i>=1;i--){if(keep[i][w]){itens.push(i-1);w-=pesos[i-1]}}itens.reverse();return{valorMaximo:dp[n][capacidade],itensSelecionados:itens}}
+function mochila01Otimizada(pesos,valores,capacidade){const n=pesos.length;const dp=Array(capacidade+1).fill(0);const keep=Array.from({length:n+1},()=>Array(capacidade+1).fill(false));for(let i=1;i<=n;i++){const p=pesos[i-1],v=valores[i-1];for(let w=capacidade;w>=p;w--){const com=dp[w-p]+v;if(com>dp[w]){dp[w]=com;keep[i][w]=true}}}const itens=[];let w=capacidade;for(let i=n;i>=1;i--){if(keep[i][w]){itens.push(i-1);w-=pesos[i-1]}}itens.reverse();return{valorMaximo:dp[capacidade],itensSelecionados:itens}}
+
+const simState={itens:[]};
+
+function simRender(){const c=document.getElementById('sim-list');if(simState.itens.length===0){c.innerHTML='<div class="sim-empty">Nenhum item. Adicione pesos e valores acima.</div>';return}c.innerHTML=simState.itens.map((item,i)=>'<div class="sim-item"><span class="sim-idx">#'+(i+1)+'</span><span>'+item.nome+'</span><span class="sim-val">'+item.peso+'</span><span class="sim-val">'+item.valor+'</span><button onclick="simRemove('+i+')">×</button></div>').join('')}
+function simAddItem(){const ne=document.getElementById('sim-name'),we=document.getElementById('sim-weight'),ve=document.getElementById('sim-value');const nome=ne.value.trim()||'Item '+(simState.itens.length+1);const peso=parseInt(we.value),valor=parseInt(ve.value);if(!peso||peso<1||!valor||valor<1)return;simState.itens.push({nome,peso,valor});ne.value='';we.value='';ve.value='';ne.focus();simRender();document.getElementById('sim-result').style.display='none';document.getElementById('sim-result').innerHTML='';document.getElementById('sim-viz-stage').innerHTML='<div class="sim-empty">Adicione itens e clique em <strong>Executar</strong>.</div>'}
+function simRemove(idx){simState.itens.splice(idx,1);simRender();if(simState.itens.length===0)document.getElementById('sim-viz-stage').innerHTML='<div class="sim-empty">Nenhum item. Adicione acima.</div>';else simSolve()}
+function simClear(){simState.itens=[];simRender();document.getElementById('sim-viz-stage').innerHTML='<div class="sim-empty">Adicione itens e clique em <strong>Executar</strong>.</div>';document.getElementById('sim-result').style.display='none';document.getElementById('sim-cap').value=500}
+function simExample(){simState.itens=[{nome:'Item 1',peso:2,valor:3},{nome:'Item 2',peso:3,valor:4},{nome:'Item 3',peso:4,valor:5},{nome:'Item 4',peso:5,valor:6}];document.getElementById('sim-cap').value=8;simRender();simSolve()}
+function fmt(n){return n.toLocaleString('pt-BR')}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
+
+async function simSolve(){if(simState.itens.length===0)return;const capacidade=parseInt(document.getElementById('sim-cap').value)||8;const pesos=simState.itens.map(i=>i.peso);const valores=simState.itens.map(i=>i.valor);const n=pesos.length;const stage=document.getElementById('sim-viz-stage');const progressCont=document.getElementById('sim-progress-cont');const progressFill=document.getElementById('sim-progress-fill');const controls=document.getElementById('sim-controls');const stepInfo=document.getElementById('sim-step-info');const resultDiv=document.getElementById('sim-result');const chartDiv=document.getElementById('sim-chart');stage.innerHTML='';resultDiv.style.display='none';resultDiv.innerHTML='';chartDiv.style.display='none';chartDiv.innerHTML='';progressCont.style.display='block';controls.style.display='flex';const speedSlider=document.getElementById('sim-speed');const W=capacidade;const visualCols=Math.min(W,20);const colStep=W<=20?1:Math.floor(W/visualCols);const dp=Array.from({length:n+1},()=>Array(W+1).fill(0));const keep=Array.from({length:n+1},()=>Array(W+1).fill(false));const cellW=42,cellH=28,headerW=50;const svgW=headerW+(visualCols+1)*cellW;const svgH=40+(n+2)*cellH;const svg=d3.select(stage).append('svg').attr('width',svgW).attr('height',svgH).style('display','block').style('margin','0 auto');svg.append('rect').attr('width',svgW).attr('height',svgH).attr('fill','none');svg.selectAll('.col-header').data(d3.range(visualCols+1)).enter().append('text').attr('class','sim-cell-text').attr('x',d=>headerW+d*cellW+cellW/2).attr('y',16).attr('fill','var(--softer)').attr('font-size','9px').text(d=>Math.min(d*colStep,W));svg.selectAll('.row-header').data(d3.range(n+1)).enter().append('text').attr('class','sim-cell-text').attr('x',headerW/2).attr('y',d=>40+(d+1)*cellH-cellH/2).attr('fill','var(--softer)').attr('font-size','9px').text(d=>d);const cellData=[];for(let i=0;i<=n;i++)for(let c=0;c<=visualCols;c++)cellData.push({i,c,realW:Math.min(c*colStep,W)});const cells=svg.selectAll('.dp-cell').data(cellData).enter().append('g').attr('transform',d=>'translate('+(headerW+d.c*cellW)+','+(40+(d.i+1)*cellH)+')');cells.append('rect').attr('class','sim-cell-rect').attr('width',cellW-1).attr('height',cellH-1).attr('rx',2).attr('fill','rgba(255,255,255,0.03)').attr('stroke','var(--border)').attr('stroke-width',0.5);cells.append('text').attr('class','sim-cell-text').attr('x',(cellW-1)/2).attr('y',cellH/2);for(let c=0;c<=visualCols;c++){const rw=Math.min(c*colStep,W);dp[0][rw]=0;svg.selectAll('g').filter(d=>d.i===0&&d.c===c).select('text').text('0').attr('fill','var(--softer)');svg.selectAll('g').filter(d=>d.i===0&&d.c===c).select('rect').attr('fill','rgba(0,206,201,0.06)')}const totalCells=n*(visualCols+1);let processed=0;for(let i=1;i<=n;i++){const p=pesos[i-1],v=valores[i-1];stepInfo.textContent='Processando item '+i+'/'+n+' (peso='+p+', valor='+v+')';for(let c=0;c<=visualCols;c++){const rw=Math.min(c*colStep,W);if(p<=rw){const sem=dp[i-1][rw],com=dp[i-1][rw-p]+v;if(com>sem){dp[i][rw]=com;keep[i][rw]=true}else dp[i][rw]=sem}else dp[i][rw]=dp[i-1][rw];svg.selectAll('g').filter(d=>d.i===i&&d.c===c).select('rect').attr('class','sim-cell-current');svg.selectAll('g').filter(d=>d.i===i&&d.c===c).select('text').text(dp[i][rw]).attr('fill','var(--primary)');processed++;const pct=Math.round((processed/totalCells)*100);progressFill.style.width=pct+'%';stepInfo.textContent='Item '+i+'/'+n+' · célula '+Math.min(c*colStep,W)+'/'+W+' ('+pct+'%)';const speed=parseInt(speedSlider.value);if(c<visualCols||i<n)await sleep(speed);svg.selectAll('g').filter(d=>d.i===i&&d.c===c).select('rect').attr('fill','rgba(0,206,201,0.06)').attr('stroke','var(--border)').attr('stroke-width',0.5).attr('class','');svg.selectAll('g').filter(d=>d.i===i&&d.c===c).select('text').attr('fill','var(--soft)')}}progressFill.style.width='100%';const selItens=[];let wb=W;for(let i=n;i>=1;i--){if(keep[i][wb]){selItens.push(i-1);wb-=pesos[i-1]}}selItens.reverse();let btW=W;for(let i=n;i>=1;i--){if(keep[i][btW]){const btCol=Math.round(btW/colStep);const btC=Math.min(btCol,visualCols);svg.selectAll('g').filter(d=>d.i===i&&d.c===btC).select('rect').attr('class','sim-cell-optimal').attr('fill','rgba(0,206,201,0.2)');svg.selectAll('g').filter(d=>d.i===i&&d.c===btC).select('text').attr('class','sim-cell-text sim-cell-text-done');btW-=pesos[i-1]}}svg.selectAll('g').filter(d=>d.i===n&&d.c===visualCols).select('rect').attr('fill','rgba(0,206,201,0.3)').attr('stroke','var(--green)').attr('stroke-width',2);svg.selectAll('g').filter(d=>d.i===n&&d.c===visualCols).select('text').attr('fill','var(--green)').attr('font-weight','700').attr('font-size','13px');stepInfo.textContent='✓ Tabela completa! Valor ótimo: '+dp[n][W];await sleep(400);const t0m=performance.now();const resM=mochila01(pesos,valores,capacidade);const tM=(performance.now()-t0m).toFixed(2);const t0o=performance.now();const resO=mochila01Otimizada(pesos,valores,capacidade);const tO=(performance.now()-t0o).toFixed(2);const pesoTotal=resM.itensSelecionados.reduce((s,i)=>s+simState.itens[i].peso,0);const pct=((pesoTotal/capacidade)*100).toFixed(1);const celulasMat=(n+1)*(capacidade+1);const celulasOti=capacidade+1;controls.style.display='none';progressCont.style.display='none';resultDiv.style.display='block';const selSet=new Set(resM.itensSelecionados);resultDiv.innerHTML='<div class="sim-kpis"><div class="sim-kpi"><div class="sim-kpi-label">Valor Máximo</div><div class="sim-kpi-value" style="color:var(--green)">'+fmt(resM.valorMaximo)+'</div><div class="sim-kpi-sub">Resultado ótimo global</div></div><div class="sim-kpi"><div class="sim-kpi-label">Itens Selecionados</div><div class="sim-kpi-value" style="color:var(--primary)">'+resM.itensSelecionados.length+'</div><div class="sim-kpi-sub">de '+n+' itens</div></div></div><div class="sim-bar"><div class="sim-bar-label">Capacidade: '+pesoTotal+' / '+capacidade+' kg ('+pct+'%)</div><div class="sim-bar-track"><div class="sim-bar-fill" style="width:'+pct+'%;background:'+(pct>90?'linear-gradient(90deg,var(--green),#00e5d9)':'linear-gradient(90deg,var(--primary),var(--green))')+';"></div><div class="sim-bar-text">'+pct+'%</div></div></div><table class="sim-compare"><tr><th>Algoritmo</th><th>Tempo</th><th>Células</th><th>Valor</th></tr><tr><td><strong>Matricial</strong> O(n·W)</td><td class="'+(parseFloat(tM)<parseFloat(tO)?'fast':'')+'">'+tM+'ms</td><td>'+celulasMat.toLocaleString('pt-BR')+'</td><td>'+fmt(resM.valorMaximo)+'</td></tr><tr><td><strong class="fast">Otimizada</strong> O(W)</td><td class="fast">'+tO+'ms</td><td>'+celulasOti.toLocaleString('pt-BR')+'</td><td>'+fmt(resO.valorMaximo)+'</td></tr></table><div class="sim-tags">'+simState.itens.map((item,i)=>'<span class="sim-tag '+(selSet.has(i)?'selected':'rejected')+'">#'+(i+1)+' '+item.nome+' ('+item.peso+'kg · $'+fmt(item.valor)+')</span>').join('')+'</div>';chartDiv.style.display='block';const cw=chartDiv.clientWidth||400;const ch=100;const margin={top:10,right:10,bottom:20,left:10};const cSvg=d3.select(chartDiv).append('svg').attr('width',cw).attr('height',ch);const maxT=Math.max(parseFloat(tM),parseFloat(tO))*1.3;const xScale=d3.scaleLinear().domain([0,maxT]).range([0,cw-margin.left-margin.right]);const barData=[{label:'Matricial',time:parseFloat(tM),cells:celulasMat},{label:'Otimizada',time:parseFloat(tO),cells:celulasOti}];barData.forEach((d,i)=>{const y=margin.top+i*40;const bw=Math.max(xScale(d.time),4);cSvg.append('rect').attr('x',margin.left).attr('y',y).attr('width',bw).attr('height',28).attr('rx',4).attr('fill',i===0?'rgba(255,144,77,0.3)':'rgba(0,206,201,0.3)').attr('stroke',i===0?'var(--primary)':'var(--green)').attr('stroke-width',1);cSvg.append('text').attr('x',margin.left+6).attr('y',y+19).attr('fill','#fff').attr('font-size','10px').attr('font-weight','600').text(d.label+': '+d.time.toFixed(2)+'ms')})}
+
+// Keyboard shortcuts for simulator
+document.addEventListener('keydown',(e)=>{if(e.target.closest('#simulator')){if(e.key==='Enter'&&e.target.id==='sim-weight')simAddItem();if(e.key==='Enter'&&e.target.id==='sim-value')simAddItem();if(e.key==='Enter'&&e.target.id==='sim-name')document.getElementById('sim-weight').focus()}});
+
+// ── D3 VISUALIZATIONS (trigger on scroll into view) ──
+const vizInit={};
+function initViz(id,fn){if(vizInit[id])return;vizInit[id]=true;fn()}
+
+const vizObserver=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting){if(e.target.id==='theory-viz')initViz('theory',initTheoryViz);if(e.target.id==='problem-viz')initViz('problem',initProblemViz);if(e.target.id==='recurrence-viz')initViz('recurrence',initRecurrenceViz);if(e.target.id==='results-viz')initViz('results',initResultsViz);if(e.target.id==='analysis-viz')initViz('analysis',initAnalysisViz)}})},{threshold:0.3});
+document.querySelectorAll('#theory-viz,#problem-viz,#recurrence-viz,#results-viz,#analysis-viz').forEach(el=>vizObserver.observe(el));
+
+function initTheoryViz(){const container=document.getElementById('theory-viz');if(!container)return;const w=container.clientWidth||600,h=180;const svg=d3.select(container).append('svg').attr('width',w).attr('height',h);const nodes=[];for(let i=0;i<18;i++)nodes.push({id:i,x:Math.random()*(w-60)+30,y:Math.random()*(h-60)+30,r:5+Math.random()*8,label:'(i'+(i%5)+',w'+(i%6)+')'});const edges=[];for(let i=0;i<nodes.length;i++)for(let j=i+1;j<nodes.length;j++)if(Math.random()<0.18)edges.push({source:i,target:j});edges.forEach((e,idx)=>{const src=nodes[e.source],tgt=nodes[e.target];svg.append('line').attr('x1',src.x).attr('y1',src.y).attr('x2',tgt.x).attr('y2',tgt.y).attr('stroke','var(--softer)').attr('stroke-width',0.4).attr('opacity',0).transition().delay(idx*40).duration(400).attr('opacity',0.25)});nodes.forEach((n,idx)=>{const g=svg.append('g');g.append('circle').attr('cx',n.x).attr('cy',n.y).attr('r',0).attr('fill','rgba(255,144,77,0.25)').attr('stroke','var(--primary)').attr('stroke-width',1).transition().delay(idx*60).duration(400).attr('r',n.r);g.append('text').attr('x',n.x).attr('y',n.y+n.r+10).attr('text-anchor','middle').attr('fill','var(--softer)').attr('font-size','7px').text(n.label).attr('opacity',0).transition().delay(idx*60+300).duration(300).attr('opacity',0.6);g.select('circle').attr('class','pulse-circle')});svg.append('text').attr('x',w/2).attr('y',16).attr('text-anchor','middle').attr('fill','var(--primary)').attr('font-size','11px').attr('font-weight','600').text('↻ Sobreposição de Subproblemas').attr('opacity',0).transition().delay(1500).duration(500).attr('opacity',0.8)}
+
+function initProblemViz(){const container=document.getElementById('problem-viz');if(!container)return;const w=container.clientWidth||600,h=130;const svg=d3.select(container).append('svg').attr('width',w).attr('height',h);const data=[{label:'Força Bruta',value:100,color:'#ff7675',sub:'O(2ⁿ)'},{label:'Programação Dinâmica',value:55,color:'#00cec9',sub:'O(n·W)'},{label:'Algoritmo Guloso',value:20,color:'rgba(255,255,255,0.25)',sub:'≈'}];const xScale=d3.scaleLinear().domain([0,110]).range([80,w-20]);data.forEach((d,i)=>{const y=16+i*36;svg.append('text').attr('x',76).attr('y',y+14).attr('text-anchor','end').attr('fill',d.color).attr('font-size','11px').attr('font-weight','600').text(d.label);svg.append('rect').attr('x',82).attr('y',y).attr('width',0).attr('height',22).attr('rx',4).attr('fill',d.color.replace('#00cec9','rgba(0,206,201,0.4)')).attr('opacity',0.7).transition().delay(i*300).duration(800).ease(d3.easeBounce).attr('width',xScale(d.value)-82);svg.append('text').attr('x',86).attr('y',y+15).attr('fill','#fff').attr('font-size','10px').attr('font-weight','700').attr('opacity',0).transition().delay(i*300+600).duration(300).attr('opacity',1).text(d.sub)})}
+
+function initRecurrenceViz(){const container=document.getElementById('recurrence-viz');if(!container)return;const w=container.clientWidth||600,h=150;const svg=d3.select(container).append('svg').attr('width',w).attr('height',h);const cx=w/2;const boxes=[{x:20,y:10,label:'dp[i−1][w]',sub:'Não incluir',color:'var(--softer)'},{x:20,y:76,label:'dp[i−1][w−wᵢ] + vᵢ',sub:'Incluir o item',color:'var(--green)'},{x:cx-40,y:40,label:'dp[i][w]',sub:'Valor ótimo',color:'var(--primary)'}];if(!svg.select('defs').size()){svg.append('defs').append('marker').attr('id','arrow').attr('viewBox','0 0 10 10').attr('refX',5).attr('refY',5).attr('markerWidth',4).attr('markerHeight',4).attr('orient','auto').append('path').attr('d','M0,0 L10,5 L0,10 Z').attr('fill','var(--primary)')}boxes.forEach((b,i)=>{const g=svg.append('g').attr('opacity',0);g.append('rect').attr('x',b.x).attr('y',b.y).attr('width',i<2?160:120).attr('height',42).attr('rx',8).attr('fill','rgba(255,255,255,0.04)').attr('stroke',b.color).attr('stroke-width',1.2).attr('stroke-dasharray',i<2?'4,2':'0');g.append('text').attr('x',b.x+(i<2?80:60)).attr('y',b.y+18).attr('text-anchor','middle').attr('fill',b.color).attr('font-size','11px').attr('font-family','JetBrains Mono,monospace').attr('font-weight','600').text(b.label);g.append('text').attr('x',b.x+(i<2?80:60)).attr('y',b.y+32).attr('text-anchor','middle').attr('fill','var(--softer)').attr('font-size','8px').text(b.sub);g.transition().delay(i*400).duration(500).attr('opacity',1)});function drawArrow(x1,y1,x2,y2,delay){const line=svg.append('line').attr('x1',x1).attr('y1',y1).attr('x2',x2).attr('y2',y2).attr('stroke','var(--primary)').attr('stroke-width',1.5).attr('marker-end','url(#arrow)').attr('opacity',0);line.transition().delay(delay).duration(600).attr('opacity',0.7);line.attr('class','pulse-arrow')}drawArrow(180,31,cx-40,45,1500);drawArrow(180,97,cx-40,65,1800)}
+
+function initResultsViz(){const container=document.getElementById('results-viz');if(!container)return;const w=container.clientWidth||500,h=120;const svg=d3.select(container).append('svg').attr('width',w).attr('height',h);const data=[{label:'Matricial',time:22.90,cells:50501,color:'var(--primary)'},{label:'Otimizada',time:6.86,cells:501,color:'var(--green)'}];const maxTime=25,maxCells=55000;const barW=(w-120)/2;data.forEach((d,i)=>{const x=i===0?100:100+barW+30,y=15;const tw=(d.time/maxTime)*(barW-20);svg.append('rect').attr('x',x).attr('y',y).attr('width',0).attr('height',18).attr('rx',4).attr('fill',d.color==='var(--primary)'?'rgba(255,144,77,0.3)':'rgba(0,206,201,0.3)').attr('stroke',d.color).attr('stroke-width',1).transition().delay(i*400).duration(600).ease(d3.easeBounce).attr('width',Math.max(tw,4));svg.append('text').attr('x',x+4).attr('y',y+13).attr('fill','#fff').attr('font-size','10px').attr('font-weight','600').attr('opacity',0).transition().delay(i*400+400).duration(300).attr('opacity',1).text(d.label+': '+d.time+'ms');const cw=(d.cells/maxCells)*(barW-20);svg.append('rect').attr('x',x).attr('y',y+30).attr('width',0).attr('height',18).attr('rx',4).attr('fill',d.color==='var(--primary)'?'rgba(255,144,77,0.15)':'rgba(0,206,201,0.15)').attr('stroke',d.color).attr('stroke-width',0.5).attr('stroke-dasharray','2,2').transition().delay(i*400+200).duration(600).attr('width',Math.max(cw,4));svg.append('text').attr('x',x+4).attr('y',y+43).attr('fill','var(--softer)').attr('font-size','8px').attr('opacity',0).transition().delay(i*400+600).duration(300).attr('opacity',1).text(d.cells.toLocaleString('pt-BR')+' células');svg.append('text').attr('x',x+(barW-20)/2).attr('y',h-5).attr('text-anchor','middle').attr('fill',d.color).attr('font-size','10px').attr('font-weight','600').attr('opacity',0).transition().delay(i*400+800).duration(300).attr('opacity',1).text(d.label)})}
+
+function initAnalysisViz(){const container=document.getElementById('analysis-viz');if(!container)return;const w=container.clientWidth||500,h=90;const svg=d3.select(container).append('svg').attr('width',w).attr('height',h);const cx=[w*0.2,w*0.5,w*0.8];const data=[{label:'O(2ⁿ)',r:36,color:'#ff7675',sub:'Força Bruta'},{label:'O(n·W)',r:28,color:'var(--primary)',sub:'DP Matricial'},{label:'O(W)',r:16,color:'var(--green)',sub:'DP Otimizada'}];data.forEach((d,i)=>{const g=svg.append('g').attr('transform','translate('+cx[i]+',50)').attr('opacity',0);g.append('circle').attr('r',0).attr('fill',d.color==='#ff7675'?'rgba(255,118,117,0.15)':d.color==='var(--primary)'?'rgba(255,144,77,0.15)':'rgba(0,206,201,0.15)').attr('stroke',d.color).attr('stroke-width',1.5).transition().delay(i*300).duration(600).ease(d3.easeElastic).attr('r',d.r);g.append('text').attr('y',-d.r-8).attr('text-anchor','middle').attr('fill',d.color).attr('font-size','11px').attr('font-weight','700').attr('opacity',0).transition().delay(i*300+400).duration(300).attr('opacity',1).text(d.label);g.append('text').attr('y',d.r+14).attr('text-anchor','middle').attr('fill','var(--softer)').attr('font-size','8px').attr('opacity',0).transition().delay(i*300+600).duration(300).attr('opacity',1).text(d.sub)});svg.append('line').attr('x1',cx[0]+36).attr('y1',50).attr('x2',cx[1]-28).attr('y2',50).attr('stroke','var(--border)').attr('stroke-width',1).attr('stroke-dasharray','4,3').attr('opacity',0).transition().delay(1200).duration(500).attr('opacity',0.4);svg.append('line').attr('x1',cx[1]+28).attr('y1',50).attr('x2',cx[2]-16).attr('y2',50).attr('stroke','var(--border)').attr('stroke-width',1).attr('stroke-dasharray','4,3').attr('opacity',0).transition().delay(1500).duration(500).attr('opacity',0.4)}
+
+// ── INIT ──
+lucide.createIcons();
+</script>
+</body>
+</html>
