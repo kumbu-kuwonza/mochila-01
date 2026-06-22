@@ -925,13 +925,16 @@ for (let i = 0; i < total; i++) {
 const dots = dotsContainer.querySelectorAll('.nav-dot');
 
 function goTo(idx) {
-    if (idx < 0 || idx >= total) return;
+    // Loop navigation
+    if (idx < 0) idx = total - 1;
+    if (idx >= total) idx = 0;
+    if (idx === current) return; // skip same slide
     slides[current].classList.remove('active');
     dots[current].classList.remove('active');
     current = idx;
     slides[current].classList.add('active');
     dots[current].classList.add('active');
-    // Re-trigger reveal animation
+    // Re-trigger reveal animation (only when changing slides)
     const inner = slides[current].querySelector('.slide-inner');
     if (inner) {
         const items = inner.querySelectorAll('.reveal-item');
@@ -946,8 +949,6 @@ function goTo(idx) {
     const num = String(current + 1).padStart(2, '0');
     counter.textContent = num + ' / ' + String(total).padStart(2, '0');
     progressFill.style.width = ((current + 1) / total * 100) + '%';
-    prevBtn.disabled = current === 0;
-    nextBtn.disabled = current === total - 1;
     initSlideViz(current);
 }
 
@@ -959,8 +960,8 @@ document.getElementById('fullscreen-btn').addEventListener('click', () => {
 });
 
 document.addEventListener('keydown', (e) => {
-    if (['ArrowRight','ArrowDown','PageDown',' '].includes(e.key)) { e.preventDefault(); if (current < total-1) goTo(current+1); }
-    else if (['ArrowLeft','ArrowUp','PageUp'].includes(e.key)) { e.preventDefault(); if (current > 0) goTo(current-1); }
+    if (['ArrowRight','ArrowDown','PageDown',' '].includes(e.key)) { e.preventDefault(); goTo(current+1); }
+    else if (['ArrowLeft','ArrowUp','PageUp'].includes(e.key)) { e.preventDefault(); goTo(current-1); }
     else if (e.key === 'Home') { e.preventDefault(); goTo(0); }
     else if (e.key === 'End') { e.preventDefault(); goTo(total-1); }
     else if (e.key.toLowerCase() === 'f') {
@@ -976,8 +977,8 @@ document.addEventListener('touchend', e => {
     const dx = tx - e.changedTouches[0].screenX;
     const dy = ty - e.changedTouches[0].screenY;
     if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) {
-        if (dx > 0 && current < total-1) goTo(current+1);
-        else if (dx < 0 && current > 0) goTo(current-1);
+        if (dx > 0) goTo(current+1);
+        else if (dx < 0) goTo(current-1);
     }
 });
 
