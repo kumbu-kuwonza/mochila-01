@@ -27,18 +27,46 @@
 html, body { height: 100%; overflow: hidden; }
 body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; }
 
+#particles-canvas {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    opacity: 0.35;
+}
+
 .slide {
     position: absolute; inset: 0;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     padding: 48px 64px;
-    opacity: 0; visibility: hidden;
-    transition: opacity 0.5s ease, visibility 0.5s ease;
+    opacity: 0; visibility: hidden; z-index: 0;
+    transform: scale(0.96) translateY(20px);
+    filter: blur(4px);
+    transition: opacity 0.7s cubic-bezier(0.16,1,0.3,1), visibility 0.7s, transform 0.7s cubic-bezier(0.16,1,0.3,1), filter 0.7s ease;
     overflow-y: auto;
 }
-.slide.active { opacity: 1; visibility: visible; z-index: 1; }
+.slide.active { opacity: 1; visibility: visible; z-index: 1; transform: scale(1) translateY(0); filter: blur(0); }
 
-.slide-inner { max-width: 960px; width: 100%; animation: fadeUp 0.6s ease forwards; }
-@keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+.slide-inner { max-width: 960px; width: 100%; }
+.slide.active .slide-inner { }
+
+/* Staggered reveal system */
+.slide .reveal-item {
+    opacity: 0; transform: translateY(24px);
+    transition: opacity 0.6s cubic-bezier(0.16,1,0.3,1), transform 0.6s cubic-bezier(0.16,1,0.3,1);
+}
+.slide.active .reveal-item {
+    opacity: 1; transform: translateY(0);
+}
+.slide .reveal-d1 { transition-delay: 0.05s; }
+.slide .reveal-d2 { transition-delay: 0.1s; }
+.slide .reveal-d3 { transition-delay: 0.15s; }
+.slide .reveal-d4 { transition-delay: 0.2s; }
+.slide .reveal-d5 { transition-delay: 0.25s; }
+.slide .reveal-d6 { transition-delay: 0.3s; }
+.slide .reveal-d7 { transition-delay: 0.35s; }
+.slide .reveal-d8 { transition-delay: 0.4s; }
+.slide .reveal-d9 { transition-delay: 0.45s; }
+.slide .reveal-d10 { transition-delay: 0.5s; }
+.slide .reveal-d11 { transition-delay: 0.55s; }
+.slide .reveal-d12 { transition-delay: 0.6s; }
 
 .primary { color: var(--primary); }
 .green { color: var(--green); }
@@ -252,6 +280,7 @@ table.dp .hl { color: var(--green); font-weight: 700; }
 </style>
 </head>
 <body>
+<canvas id="particles-canvas"></canvas>
 <div id="progress"><div id="progress-fill"></div></div>
 
 <!-- 1: TITLE -->
@@ -809,11 +838,89 @@ const counter = document.getElementById('counter');
 const dotsContainer = document.getElementById('nav-dots');
 const progressFill = document.getElementById('progress-fill');
 
+// ── PARTICLE SYSTEM ──
+const canvas = document.getElementById('particles-canvas');
+const ctx = canvas.getContext('2d');
+let particles = [];
+
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', () => { resizeCanvas(); initParticles(); });
+
+function initParticles() {
+    const count = Math.floor((canvas.width * canvas.height) / 12000);
+    particles = [];
+    for (let i = 0; i < count; i++) {
+        particles.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            r: 0.4 + Math.random() * 1.2,
+            vx: (Math.random() - 0.5) * 0.3,
+            vy: (Math.random() - 0.5) * 0.3,
+            alpha: 0.15 + Math.random() * 0.35
+        });
+    }
+}
+initParticles();
+
+function drawParticles() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.x < 0) p.x = canvas.width;
+        if (p.x > canvas.width) p.x = 0;
+        if (p.y < 0) p.y = canvas.height;
+        if (p.y > canvas.height) p.y = 0;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255,255,255,' + p.alpha + ')';
+        ctx.fill();
+
+        // Draw connections
+        for (let j = i + 1; j < particles.length; j++) {
+            const p2 = particles[j];
+            const dx = p.x - p2.x;
+            const dy = p.y - p2.y;
+            const dist = dx * dx + dy * dy;
+            if (dist < 12000) {
+                ctx.beginPath();
+                ctx.moveTo(p.x, p.y);
+                ctx.lineTo(p2.x, p2.y);
+                ctx.strokeStyle = 'rgba(255,144,77,' + (0.03 * (1 - dist / 12000)) + ')';
+                ctx.stroke();
+            }
+        }
+    }
+    requestAnimationFrame(drawParticles);
+}
+drawParticles();
+
+// ── STAGGERED REVEAL SYSTEM ──
+function applyReveal(slideEl) {
+    const items = slideEl.querySelectorAll('.reveal-item');
+    if (items.length) return; // already processed
+    // Auto-mark direct children of slide-inner for reveal
+    const inner = slideEl.querySelector('.slide-inner');
+    if (!inner) return;
+    const children = inner.children;
+    for (let i = 0; i < children.length; i++) {
+        const delay = Math.min(i, 11);
+        children[i].classList.add('reveal-item', 'reveal-d' + (delay + 1));
+    }
+}
+
 for (let i = 0; i < total; i++) {
     const dot = document.createElement('button');
     dot.className = 'nav-dot' + (i === 0 ? ' active' : '');
     dot.addEventListener('click', () => goTo(i));
     dotsContainer.appendChild(dot);
+    applyReveal(slides[i]);
 }
 const dots = dotsContainer.querySelectorAll('.nav-dot');
 
@@ -824,6 +931,18 @@ function goTo(idx) {
     current = idx;
     slides[current].classList.add('active');
     dots[current].classList.add('active');
+    // Re-trigger reveal animation
+    const inner = slides[current].querySelector('.slide-inner');
+    if (inner) {
+        const items = inner.querySelectorAll('.reveal-item');
+        items.forEach(el => {
+            el.style.transition = 'none';
+            el.classList.remove('reveal-item');
+            void el.offsetWidth;
+            el.style.transition = '';
+            el.classList.add('reveal-item');
+        });
+    }
     const num = String(current + 1).padStart(2, '0');
     counter.textContent = num + ' / ' + String(total).padStart(2, '0');
     progressFill.style.width = ((current + 1) / total * 100) + '%';
