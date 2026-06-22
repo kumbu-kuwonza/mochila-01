@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Otimizador de Cargas — Mochila 0/1 (DP)</title>
+    <style>
+        :root {
+            --bg: #0f1117;
+            --surface: #1a1d27;
+            --border: #2a2d3a;
+            --text: #e1e4ed;
+            --muted: #8b8fa3;
+            --accent: #6c5ce7;
+            --accent-glow: #a29bfe;
+            --green: #00cec9;
+            --red: #ff7675;
+            --yellow: #fdcb6e;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .app { max-width: 1100px; margin: 0 auto; padding: 24px; }
+
+        header {
+            text-align: center;
+            padding: 32px 0 24px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 28px;
+        }
+        header h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-glow), var(--green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        header p { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
+
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+        .panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .panel h2 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--muted);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .panel h2 .dot { width: 8px; height: 8px; border-radius: 50%; }
+        .dot.purple { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+        .dot.green { background: var(--green); box-shadow: 0 0 8px var(--green); }
+
+        .input-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .input-row input {
+            flex: 1;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 12px;
+            color: var(--text);
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .input-row input:focus { border-color: var(--accent); }
+        .input-row input::placeholder { color: #4a4d5a; }
+
+        .btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-add {
+            background: var(--accent);
+            color: #fff;
+            white-space: nowrap;
+        }
+        .btn-add:hover { background: #7c6ff7; }
+        .btn-solve {
+            background: var(--green);
+            color: #0f1117;
+            width: 100%;
+            margin-top: 12px;
+            padding: 12px;
+            font-size: 0.9rem;
+        }
+        .btn-solve:hover { background: #00e5d9; }
+        .btn-reset { background: transparent; border: 1px solid var(--border); color: var(--muted); }
+        .btn-reset:hover { border-color: var(--red); color: var(--red); }
+
+        .item-list { max-height: 320px; overflow-y: auto; margin-top: 8px; }
+        .item-row {
+            display: grid;
+            grid-template-columns: 32px 1fr 1fr 32px;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.85rem;
+        }
+        .item-row .idx { color: var(--muted); font-weight: 600; }
+        .item-row button {
+            background: none;
+            border: none;
+            color: var(--red);
+            cursor: pointer;
+            font-size: 1.1rem;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+        }
+        .item-row button:hover { opacity: 1; }
+
+        .capacity-input {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border);
+        }
+        .capacity-input label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 6px; }
+        .capacity-input input { width: 100%; }
+
+        /* Resultado */
+        .result-panel { grid-column: 1 / -1; }
+
+        .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 12px; }
+
+        .kpi {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            text-align: center;
+        }
+        .kpi .label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+        .kpi .value { font-size: 1.8rem; font-weight: 700; margin-top: 4px; }
+        .kpi .value.accent { color: var(--accent-glow); }
+        .kpi .value.green { color: var(--green); }
+        .kpi .sub { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+
+        .bar-container {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+        }
+        .bar-label { font-size: 0.75rem; color: var(--muted); margin-bottom: 8px; }
+        .bar-track {
+            height: 24px;
+            background: #252836;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+        .bar-fill {
+            height: 100%;
+            border-radius: 12px;
+            transition: width 0.5s ease;
+            background: linear-gradient(90deg, var(--accent), var(--accent-glow));
+        }
+        .bar-text {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #fff;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+        }
+
+        .selected-items {
+            margin-top: 16px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .tag {
+            background: rgba(108, 92, 231, 0.15);
+            border: 1px solid rgba(108, 92, 231, 0.3);
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 0.8rem;
+        }
+        .tag.selected {
+            background: rgba(0, 206, 201, 0.12);
+            border-color: rgba(0, 206, 201, 0.4);
+        }
+        .tag.rejected {
+            opacity: 0.35;
+            text-decoration: line-through;
+        }
+        .tag .tag-weight { color: var(--muted); font-size: 0.7rem; margin-left: 4px; }
+
+        .empty-state {
+            text-align: center;
+            color: var(--muted);
+            padding: 40px 20px;
+            font-size: 0.9rem;
+        }
+
+        .hidden { display: none; }
+
+        .time-badge {
+            font-size: 0.7rem;
+            color: var(--muted);
+            padding: 4px 10px;
+            background: var(--bg);
+            border-radius: 20px;
+            display: inline-block;
+            margin-top: 8px;
+        }
+
+        .compare-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 12px 0 8px;
+            font-size: 0.82rem;
+        }
+        .compare-table th {
+            text-align: left;
+            color: var(--muted);
+            font-weight: 500;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 8px 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        .compare-table td {
+            padding: 10px 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        .compare-table .fast { color: var(--green); font-weight: 600; }
+        .compare-table .slow { color: var(--yellow); }
+        .compare-table .winner { background: rgba(0,206,201,0.06); }
+
+        /* DP Table Visualization */
+        .dp-viz {
+            margin-top: 16px;
+            max-height: 280px;
+            overflow: auto;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 4px;
+            font-family: 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
+            font-size: 0.65rem;
+            position: relative;
+        }
+        .dp-viz table {
+            border-collapse: collapse;
+            width: max-content;
+            min-width: 100%;
+        }
+        .dp-viz th, .dp-viz td {
+            padding: 2px 4px;
+            text-align: center;
+            min-width: 32px;
+            border: 1px solid #1e2030;
+            transition: background 0.15s, color 0.15s;
+        }
+        .dp-viz th {
+            background: #151720;
+            color: var(--muted);
+            font-weight: 500;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+        .dp-viz .row-header {
+            background: #151720;
+            color: var(--muted);
+            font-weight: 500;
+            position: sticky;
+            left: 0;
+        }
+        .dp-viz .cell-empty { color: #2a2d3a; }
+        .dp-viz .cell-filling {
+            background: rgba(108,92,231,0.3);
+            color: var(--accent-glow);
+            animation: cellPulse 0.4s ease;
+        }
+        .dp-viz .cell-done { color: #5a5d6a; }
+        .dp-viz .cell-optimal {
+            background: rgba(0,206,201,0.25);
+            color: var(--green);
+            font-weight: 700;
+        }
+        @keyframes cellPulse {
+            0% { transform: scale(1.2); background: var(--accent); }
+            100% { transform: scale(1); background: rgba(108,92,231,0.3); }
+        }
+
+        .viz-controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-top: 8px;
+        }
+        .btn-viz {
+            background: transparent;
+            border: 1px solid var(--accent);
+            color: var(--accent-glow);
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-viz:hover { background: rgba(108,92,231,0.15); }
+        .btn-viz.running { border-color: var(--green); color: var(--green); }
+        .viz-counter {
+            font-size: 0.75rem;
+            color: var(--muted);
+            font-family: monospace;
+        }
+        .viz-counter span { color: var(--accent-glow); font-weight: 600; }
+
+        /* ──────────────────────────────────────────────
+           RESPONSIVIDADE — Mobile First
+           ────────────────────────────────────────────── */
+
+        /* Telas médias (tablet) */
+        @media (max-width: 900px) {
+            .app { padding: 16px; }
+            header h1 { font-size: 1.3rem; }
+            header p { font-size: 0.8rem; }
+        }
+
+        /* Celular (<= 768px) */
+        @media (max-width: 768px) {
+            .app { padding: 12px; }
+            .grid { grid-template-columns: 1fr; gap: 14px; }
+            .result-grid { grid-template-columns: 1fr; gap: 10px; }
+
+            header { padding: 20px 0 16px; margin-bottom: 16px; }
+            header h1 { font-size: 1.1rem; }
+            header p { font-size: 0.75rem; }
+
+            .panel { padding: 14px; }
+            .panel h2 { font-size: 0.8rem; margin-bottom: 10px; }
+
+            .input-row {
+                flex-wrap: wrap;
+                gap: 6px;
+            }
+            .input-row input {
+                font-size: 0.85rem;
+                padding: 8px 10px;
+                min-width: 0;
+            }
+            .input-row input:first-child { flex: 1 1 100%; }
+            .input-row input:not(:first-child) { flex: 1 1 35%; }
+            .btn-add {
+                flex: 0 0 auto;
+                padding: 8px 14px;
+                font-size: 1.1rem;
+            }
+
+            .item-row {
+                grid-template-columns: 28px 1fr 1fr 28px;
+                gap: 4px;
+                padding: 6px 0;
+                font-size: 0.78rem;
+            }
+            .item-list { max-height: 220px; }
+
+            .btn-solve { font-size: 0.82rem; padding: 10px; }
+
+            .kpi .value { font-size: 1.4rem; }
+
+            .compare-table { font-size: 0.7rem; }
+            .compare-table th,
+            .compare-table td { padding: 6px 6px; }
+
+            .selected-items { gap: 5px; }
+            .tag { font-size: 0.72rem; padding: 4px 8px; }
+
+            .bar-label { font-size: 0.7rem; }
+            .bar-track { height: 20px; }
+            .bar-text { font-size: 0.7rem; }
+
+            .time-badge { font-size: 0.65rem; }
+
+            .dp-viz { font-size: 0.55rem; max-height: 200px; }
+            .dp-viz th, .dp-viz td { min-width: 24px; padding: 1px 3px; }
+
+            .viz-controls { flex-wrap: wrap; gap: 6px; }
+            .btn-viz { font-size: 0.7rem; padding: 5px 10px; }
+
+            .capacity-input { margin-top: 8px; padding-top: 8px; }
+
+            /* Botões de ação empilhados no mobile */
+            div[style*="margin-top:8px"] {
+                flex-direction: column !important;
+                gap: 6px !important;
+            }
+            div[style*="margin-top:8px"] .btn {
+                width: 100%;
+                text-align: center;
+            }
+
+            /* Modal DP em tela cheia no mobile */
+            #modalTabela > div {
+                width: 100vw !important;
+                height: 100vh !important;
+                max-width: 100vw !important;
+                border-radius: 0 !important;
+            }
+            #modalTabela > div > div:first-child {
+                padding: 8px 12px !important;
+            }
+            #modalTabela > div > div:first-child span {
+                font-size: 0.8rem !important;
+            }
+
+            /* Empty state */
+            .empty-state { font-size: 0.8rem; padding: 24px 12px; }
+        }
+
+        /* Celular pequeno (<= 480px) */
+        @media (max-width: 480px) {
+            .app { padding: 8px; }
+            .panel { padding: 10px; border-radius: 8px; }
+            header { padding: 14px 0 12px; }
+            header h1 { font-size: 0.95rem; }
+            header p { font-size: 0.65rem; }
+
+            .input-row input { font-size: 0.8rem; padding: 7px 8px; }
+            .input-row input:not(:first-child) { flex: 1 1 30%; }
+
+            .item-row { font-size: 0.72rem; }
+            .kpi .value { font-size: 1.2rem; }
+            .kpi { padding: 10px; }
+
+            .compare-table { font-size: 0.62rem; }
+            .compare-table th,
+            .compare-table td { padding: 4px 4px; }
+
+            .bar-container { padding: 10px; }
+            .bar-track { height: 16px; }
+            .bar-text { font-size: 0.6rem; }
+
+            .dp-viz { font-size: 0.45rem; max-height: 160px; }
+            .dp-viz th, .dp-viz td { min-width: 20px; padding: 1px 2px; }
+        }
+
+        /* Landscape em celular */
+        @media (max-height: 500px) and (orientation: landscape) {
+            header { padding: 8px 0; }
+            header h1 { font-size: 0.9rem; }
+            header p { display: none; }
+            .grid { gap: 8px; }
+            .panel { padding: 8px; }
+            .item-list { max-height: 120px; }
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+
+    <header>
+        <h1>Sistema de Otimização de Cargas</h1>
+        <p>Mochila 0/1 com Programação Dinâmica — Tempo Real</p>
+    </header>
+
+    <div class="grid">
+
+        <!-- Painel de Entrada -->
+        <div class="panel" id="inputPanel">
+            <h2><span class="dot purple"></span> Itens Disponíveis</h2>
+
+            <div class="input-row">
+                <input type="text" id="itemName" placeholder="Nome (ex: Frete SP-RJ)">
+                <input type="number" id="itemWeight" placeholder="Peso (kg)" min="1" step="1">
+                <input type="number" id="itemValue" placeholder="Valor (R$)" min="1" step="1">
+                <button class="btn btn-add" onclick="adicionarItem()" title="Adicionar (Enter)">+</button>
+            </div>
+
+            <div class="item-list" id="itemList">
+                <div class="empty-state">Nenhum item cadastrado.<br>Adicione fretes, produtos ou cargas acima.</div>
+            </div>
+
+            <div class="capacity-input">
+                <div class="input-row">
+                    <div style="flex:1">
+                        <label>Capacidade da Mochila (kg)</label>
+                        <input type="number" id="capacity" placeholder="Ex: 1000" min="1" step="1" value="1000">
+                    </div>
+                </div>
+                <div style="display:flex; gap:8px; margin-top:8px;">
+                    <button class="btn btn-solve" onclick="resolver()">Calcular Seleção Ótima</button>
+                    <button class="btn btn-viz" id="btnVisualizar" onclick="visualizar()">▶ Visualizar Passo a Passo</button>
+                    <button class="btn btn-reset" onclick="adicionarExemplo()">Exemplo Rápido</button>
+                    <button class="btn btn-reset" onclick="limparTudo()">Limpar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Painel de Resultado -->
+        <div class="panel" id="resultPanel">
+            <h2><span class="dot green"></span> Resultado da Otimização</h2>
+
+            <div id="resultContent">
+                <div class="empty-state">
+                    Preencha os itens e clique em<br>"Calcular Seleção Ótima" para ver o resultado.
+                </div>
+            </div>
+
+            <div id="resultData" class="hidden">
+                <div class="result-grid">
+                    <div class="kpi">
+                        <div class="label">Valor Máximo</div>
+                        <div class="value green" id="kpiValor">—</div>
+                        <div class="sub">Receita total otimizada</div>
+                    </div>
+                    <div class="kpi">
+                        <div class="label">Itens Selecionados</div>
+                        <div class="value accent" id="kpiItens">—</div>
+                        <div class="sub" id="kpiItensTotal">de N itens</div>
+                    </div>
+                </div>
+
+                <div class="bar-container" style="margin-top:12px;">
+                    <div class="bar-label" id="barLabel">Capacidade utilizada: —</div>
+                    <div class="bar-track">
+                        <div class="bar-fill" id="barFill" style="width:0%"></div>
+                        <div class="bar-text" id="barText">0%</div>
+                    </div>
+                </div>
+
+                <table class="compare-table" id="compareTable">
+                    <thead>
+                        <tr>
+                            <th>Algoritmo</th>
+                            <th>Complexidade</th>
+                            <th>Tempo execução</th>
+                            <th>Memória (valores)</th>
+                            <th>Células alocadas</th>
+                        </tr>
+                    </thead>
+                    <tbody id="compareBody"></tbody>
+                </table>
+
+                <div class="selected-items" id="selectedItems"></div>
+
+                <div id="vizSection" class="hidden" style="margin-top:12px;">
+                    <div style="display:flex;gap:16px;align-items:center;justify-content:space-between;">
+                        <span class="viz-counter">Células: <span id="vizCount" style="font-size:1.1rem;">0</span></span>
+                        <span class="viz-counter">Progresso: <span id="vizBar" style="font-size:1.1rem;">0%</span></span>
+                        <button class="btn btn-reset" id="btnVerTabela" onclick="abrirTabelaDP()" style="font-size:0.75rem;">📊 Ver Tabela DP</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal da Tabela DP -->
+            <div id="modalTabela" class="hidden" style="position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;" onclick="if(event.target===this)fecharTabelaDP()">
+                <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;width:95vw;max-width:1200px;height:85vh;display:flex;flex-direction:column;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--border);">
+                        <span style="font-weight:600;color:var(--text);">Tabela DP — Mochila 0/1 (scroll para navegar)</span>
+                        <button class="btn btn-reset" onclick="fecharTabelaDP()">✕ Fechar</button>
+                    </div>
+                    <div id="modalDpContent" style="flex:1;overflow:auto;padding:8px;font-family:monospace;font-size:0.65rem;background:var(--bg);"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    // ====================================================================
+    // ALGORITMO: Mochila 0/1 — Programação Dinâmica
+    // ====================================================================
+
+    function mochila01(pesos, valores, capacidade) {
+        const n = pesos.length;
+        const dp = Array.from({ length: n + 1 }, () => Array(capacidade + 1).fill(0));
+        const keep = Array.from({ length: n + 1 }, () => Array(capacidade + 1).fill(false));
+
+        for (let i = 1; i <= n; i++) {
+            const p = pesos[i - 1];
+            const v = valores[i - 1];
+            for (let w = 0; w <= capacidade; w++) {
+                if (p <= w) {
+                    const sem = dp[i - 1][w];
+                    const com = dp[i - 1][w - p] + v;
+                    if (com > sem) { dp[i][w] = com; keep[i][w] = true; }
+                    else { dp[i][w] = sem; }
+                } else {
+                    dp[i][w] = dp[i - 1][w];
+                }
+            }
+        }
+
+        const itens = [];
+        let w = capacidade;
+        for (let i = n; i >= 1; i--) {
+            if (keep[i][w]) { itens.push(i - 1); w -= pesos[i - 1]; }
+        }
+        itens.reverse();
+        return { valorMaximo: dp[n][capacidade], itensSelecionados: itens };
+    }
+
+    function mochila01Otimizada(pesos, valores, capacidade) {
+        const n = pesos.length;
+        const dp = Array(capacidade + 1).fill(0);
+        const keep = Array.from({ length: n + 1 }, () => Array(capacidade + 1).fill(false));
+
+        for (let i = 1; i <= n; i++) {
+            const p = pesos[i - 1];
+            const v = valores[i - 1];
+            for (let w = capacidade; w >= p; w--) {
+                const com = dp[w - p] + v;
+                if (com > dp[w]) { dp[w] = com; keep[i][w] = true; }
+            }
+        }
+
+        const itens = [];
+        let w = capacidade;
+        for (let i = n; i >= 1; i--) {
+            if (keep[i][w]) { itens.push(i - 1); w -= pesos[i - 1]; }
+        }
+        itens.reverse();
+        return { valorMaximo: dp[capacidade], itensSelecionados: itens };
+    }
+
+    // ====================================================================
+    // ESTADO DA APLICAÇÃO
+    // ====================================================================
+    let itens = [];
+
+    function adicionarItem() {
+        const nomeEl = document.getElementById('itemName');
+        const pesoEl = document.getElementById('itemWeight');
+        const valorEl = document.getElementById('itemValue');
+
+        const nome = nomeEl.value.trim() || `Item ${itens.length + 1}`;
+        const peso = parseInt(pesoEl.value);
+        const valor = parseInt(valorEl.value);
+
+        if (!peso || peso < 1 || !valor || valor < 1) {
+            pesoEl.focus();
+            return;
+        }
+
+        itens.push({ nome, peso, valor });
+        nomeEl.value = '';
+        pesoEl.value = '';
+        valorEl.value = '';
+        nomeEl.focus();
+
+        renderizarItens();
+        esconderResultado();
+    }
+
+    function removerItem(idx) {
+        itens.splice(idx, 1);
+        renderizarItens();
+        if (itens.length === 0) esconderResultado();
+    }
+
+    function limparTudo() {
+        itens = [];
+        renderizarItens();
+        esconderResultado();
+        document.getElementById('capacity').value = 1000;
+    }
+
+    function adicionarExemplo() {
+        itens = [
+            { nome: 'Frete SP-RJ',    peso: 120, valor: 850 },
+            { nome: 'Frete BH-FOR',   peso: 200, valor: 1100 },
+            { nome: 'Frete CWB-POA',  peso: 150, valor: 720 },
+            { nome: 'Frete REC-SSA',  peso: 90,  valor: 540 },
+            { nome: 'Frete MAO-BSB',  peso: 250, valor: 1600 },
+            { nome: 'Frete VIX-BH',   peso: 80,  valor: 400 },
+            { nome: 'Frete NAT-SLZ',  peso: 110, valor: 610 },
+            { nome: 'Frete GOI-CGB',  peso: 170, valor: 930 },
+            { nome: 'Frete FLN-POA',  peso: 60,  valor: 350 },
+            { nome: 'Frete BEL-MAO',  peso: 300, valor: 1850 },
+        ];
+        document.getElementById('capacity').value = 800;
+        renderizarItens();
+        resolver();
+    }
+
+    function renderizarItens() {
+        const container = document.getElementById('itemList');
+        if (itens.length === 0) {
+            container.innerHTML = '<div class="empty-state">Nenhum item cadastrado.<br>Adicione fretes, produtos ou cargas acima.</div>';
+            return;
+        }
+        container.innerHTML = itens.map((item, i) => `
+            <div class="item-row">
+                <span class="idx">#${i + 1}</span>
+                <span>${esc(item.nome)}</span>
+                <span style="color:var(--muted)">${item.peso}kg · R$ ${fmt(item.valor)}</span>
+                <button onclick="removerItem(${i})" title="Remover">×</button>
+            </div>
+        `).join('');
+    }
+
+    function resolver() {
+        if (itens.length === 0) return;
+
+        const capacidade = parseInt(document.getElementById('capacity').value) || 1000;
+        const pesos = itens.map(i => i.peso);
+        const valores = itens.map(i => i.valor);
+        const n = pesos.length;
+
+        // Rodar os DOIS algoritmos e medir cada um
+        const t0m = performance.now();
+        const resMatricial = mochila01(pesos, valores, capacidade);
+        const tMatricial = (performance.now() - t0m).toFixed(2);
+
+        const t0o = performance.now();
+        const resOtimizada = mochila01Otimizada(pesos, valores, capacidade);
+        const tOtimizada = (performance.now() - t0o).toFixed(2);
+
+        // Cálculo de memória
+        const nItens = pesos.length;
+        const W = capacidade;
+        const celulasMatricial = (nItens + 1) * (W + 1);
+        const celulasOtimizada = W + 1;
+        const bytesMatricial = celulasMatricial * 8;   // 8 bytes por número (JS Number)
+        const bytesOtimizada = celulasOtimizada * 8;
+
+        mostrarResultado(resMatricial, capacidade, {
+            matricial: { tempo: tMatricial, celulas: celulasMatricial, bytes: bytesMatricial },
+            otimizada: { tempo: tOtimizada, celulas: celulasOtimizada, bytes: bytesOtimizada }
+        });
+    }
+
+    function mostrarResultado(res, capacidade, metricas) {
+        document.getElementById('resultContent').classList.add('hidden');
+        document.getElementById('resultData').classList.remove('hidden');
+
+        const selecionados = new Set(res.itensSelecionados);
+        const pesoTotal = res.itensSelecionados.reduce((s, i) => s + itens[i].peso, 0);
+        const pct = ((pesoTotal / capacidade) * 100).toFixed(1);
+
+        document.getElementById('kpiValor').textContent = 'R$ ' + fmt(res.valorMaximo);
+        document.getElementById('kpiItens').textContent = res.itensSelecionados.length;
+        document.getElementById('kpiItensTotal').textContent = `de ${itens.length} itens`;
+        document.getElementById('barLabel').textContent = `Capacidade utilizada: ${pesoTotal} / ${capacidade} kg`;
+        document.getElementById('barFill').style.width = pct + '%';
+        document.getElementById('barText').textContent = pct + '%';
+
+        const bar = document.getElementById('barFill');
+        bar.style.background = pct > 95
+            ? 'linear-gradient(90deg, var(--green), #00e5d9)'
+            : pct > 70
+                ? 'linear-gradient(90deg, var(--accent), var(--accent-glow))'
+                : 'linear-gradient(90deg, var(--yellow), #ffeaa7)';
+
+        // Tabela comparativa
+        const mFaster = parseFloat(metricas.matricial.tempo) < parseFloat(metricas.otimizada.tempo);
+        const formatarMemoria = (bytes) => {
+            if (bytes >= 1e6) return (bytes / 1e6).toFixed(2) + ' MB';
+            if (bytes >= 1e3) return (bytes / 1e3).toFixed(1) + ' KB';
+            return bytes + ' B';
+        };
+
+        document.getElementById('compareBody').innerHTML = `
+            <tr class="${mFaster ? 'winner' : ''}">
+                <td><strong>Matricial</strong></td>
+                <td style="color:var(--muted)">O(n·W)</td>
+                <td class="${mFaster ? 'fast' : 'slow'}">${metricas.matricial.tempo} ms</td>
+                <td style="color:var(--muted)">${formatarMemoria(metricas.matricial.bytes)}</td>
+                <td style="color:var(--muted)">${metricas.matricial.celulas.toLocaleString('pt-BR')}</td>
+            </tr>
+            <tr class="${mFaster ? '' : 'winner'}">
+                <td><strong>Otimizada</strong></td>
+                <td style="color:var(--muted)">O(W)</td>
+                <td class="${mFaster ? 'slow' : 'fast'}">${metricas.otimizada.tempo} ms</td>
+                <td style="color:var(--muted)">${formatarMemoria(metricas.otimizada.bytes)}</td>
+                <td style="color:var(--muted)">${metricas.otimizada.celulas.toLocaleString('pt-BR')}</td>
+            </tr>
+        `;
+
+        document.getElementById('selectedItems').innerHTML = itens.map((item, i) => {
+            const sel = selecionados.has(i);
+            return `<span class="tag ${sel ? 'selected' : 'rejected'}">
+                #${i + 1} ${esc(item.nome)}
+                <span class="tag-weight">${item.peso}kg · R$${fmt(item.valor)}</span>
+            </span>`;
+        }).join('');
+    }
+
+    function esconderResultado() {
+        document.getElementById('resultContent').classList.remove('hidden');
+        document.getElementById('resultData').classList.add('hidden');
+        document.getElementById('vizSection').classList.add('hidden');
+    }
+
+    // ====================================================================
+    // VISUALIZAÇÃO PASSO A PASSO (leve, sem tabela pesada durante animação)
+    // ====================================================================
+    let vizAbort = false;
+    let dpGlobal = null;
+    let dpPesos = null;
+    let dpValores = null;
+    let dpCapacidade = 0;
+    let dpTotalCelulas = 0;
+
+    async function visualizar() {
+        if (itens.length === 0) return;
+        vizAbort = false;
+
+        const capacidade = parseInt(document.getElementById('capacity').value) || 1000;
+        const pesos = itens.map(i => i.peso);
+        const valores = itens.map(i => i.valor);
+        const n = pesos.length;
+        const W = capacidade;
+
+        dpPesos = pesos;
+        dpValores = valores;
+        dpCapacidade = W;
+        dpTotalCelulas = (n + 1) * (W + 1);
+
+        document.getElementById('resultContent').classList.add('hidden');
+        document.getElementById('resultData').classList.remove('hidden');
+        document.getElementById('vizSection').classList.remove('hidden');
+        document.getElementById('btnVerTabela').classList.add('hidden');
+
+        const btn = document.getElementById('btnVisualizar');
+        btn.textContent = '⏹ Parar';
+        btn.classList.add('running');
+        btn.onclick = () => { vizAbort = true; };
+
+        // DP em chunks — cada chunk = 1 linha, yield para o browser
+        const dp = Array.from({ length: n + 1 }, () => Array(W + 1).fill(0));
+        dpGlobal = dp;
+        let celulasProcessadas = 0;
+
+        for (let i = 1; i <= n && !vizAbort; i++) {
+            const p = pesos[i - 1];
+            const v = valores[i - 1];
+
+            // Processar a linha em sub-chunks de ~500 células
+            for (let wStart = 0; wStart <= W && !vizAbort; wStart += 500) {
+                const wEnd = Math.min(wStart + 499, W);
+                for (let w = wStart; w <= wEnd; w++) {
+                    dp[i][w] = (p <= w) ? Math.max(dp[i - 1][w], dp[i - 1][w - p] + v) : dp[i - 1][w];
+                    celulasProcessadas++;
+                }
+                // Yield após cada chunk
+                if (wEnd < W) await new Promise(r => requestAnimationFrame(r));
+            }
+
+            // Atualizar UI após cada linha
+            document.getElementById('vizCount').textContent = celulasProcessadas.toLocaleString('pt-BR');
+            document.getElementById('vizBar').textContent = Math.round((celulasProcessadas / dpTotalCelulas) * 100) + '%';
+        }
+
+        if (vizAbort) {
+            btn.textContent = '▶ Visualizar Passo a Passo';
+            btn.classList.remove('running');
+            btn.onclick = visualizar;
+            document.getElementById('btnVerTabela').classList.remove('hidden');
+            return;
+        }
+
+        document.getElementById('vizCount').textContent = dpTotalCelulas.toLocaleString('pt-BR');
+        document.getElementById('vizBar').textContent = '100%';
+        document.getElementById('btnVerTabela').classList.remove('hidden');
+
+        // Rodar métricas
+        const t0m = performance.now();
+        const resMatricial = mochila01(pesos, valores, capacidade);
+        const tMatricial = (performance.now() - t0m).toFixed(2);
+        const t0o = performance.now();
+        mochila01Otimizada(pesos, valores, capacidade);
+        const tOtimizada = (performance.now() - t0o).toFixed(2);
+
+        mostrarResultado(resMatricial, capacidade, {
+            matricial: { tempo: tMatricial, celulas: dpTotalCelulas, bytes: dpTotalCelulas * 8 },
+            otimizada: { tempo: tOtimizada, celulas: W + 1, bytes: (W + 1) * 8 }
+        });
+
+        btn.textContent = '▶ Visualizar Passo a Passo';
+        btn.classList.remove('running');
+        btn.onclick = visualizar;
+    }
+
+    function abrirTabelaDP() {
+        if (!dpGlobal || !dpPesos) return;
+        const modal = document.getElementById('modalTabela');
+        modal.classList.remove('hidden');
+        modal.style.display = 'flex';
+
+        const n = dpPesos.length;
+        const W = dpCapacidade;
+        const visualW = Math.min(W, 40);
+        const step = W <= 40 ? 1 : Math.ceil(W / visualW);
+
+        let html = '<table><thead><tr><th style="position:sticky;top:0;left:0;z-index:3;background:#151720;">i\\w</th>';
+        for (let vw = 0; vw <= visualW; vw++) {
+            html += `<th style="position:sticky;top:0;background:#151720;">${Math.min(vw * step, W)}</th>`;
+        }
+        html += '</tr></thead><tbody>';
+        for (let i = 0; i <= n; i++) {
+            html += `<tr><td style="background:#151720;font-weight:600;color:var(--muted);">${i}</td>`;
+            for (let vw = 0; vw <= visualW; vw++) {
+                const realW = Math.min(vw * step, W);
+                const val = dpGlobal[i] ? dpGlobal[i][realW] : 0;
+                const cls = i === 0 ? 'cell-done' : 'cell-done';
+                html += `<td class="${cls}">${val}</td>`;
+            }
+            html += '</tr>';
+        }
+        html += '</tbody></table>';
+        document.getElementById('modalDpContent').innerHTML = html;
+    }
+
+    function fecharTabelaDP() {
+        const modal = document.getElementById('modalTabela');
+        modal.classList.add('hidden');
+        modal.style.display = 'none';
+    }
+
+    function esc(s) {
+        const div = document.createElement('div');
+        div.textContent = s;
+        return div.innerHTML;
+    }
+
+    function fmt(n) {
+        return n.toLocaleString('pt-BR');
+    }
+
+    // ====================================================================
+    // ATALHOS DE TECLADO
+    // ====================================================================
+    document.getElementById('itemWeight').addEventListener('keydown', e => {
+        if (e.key === 'Enter') adicionarItem();
+    });
+    document.getElementById('itemValue').addEventListener('keydown', e => {
+        if (e.key === 'Enter') adicionarItem();
+    });
+    document.getElementById('itemName').addEventListener('keydown', e => {
+        if (e.key === 'Enter') {
+            document.getElementById('itemWeight').focus();
+        }
+    });
+    document.getElementById('capacity').addEventListener('keydown', e => {
+        if (e.key === 'Enter') resolver();
+    });
+
+    // Recalcular ao mudar a capacidade
+    document.getElementById('capacity').addEventListener('input', () => {
+        if (itens.length > 0) resolver();
+    });
+
+    // ====================================================================
+    // INICIALIZAÇÃO
+    // ====================================================================
+    document.getElementById('itemName').focus();
+</script>
+</body>
+</html>

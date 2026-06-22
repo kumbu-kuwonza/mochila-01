@@ -1,0 +1,15 @@
+{
+  "name": "mochila-01",
+  "version": 2,
+  "builds": [
+    { "src": "index.html", "use": "@vercel/static" },
+    { "src": "slides/index.html", "use": "@vercel/static" },
+    { "src": "*.js", "use": "@vercel/static" }
+  ],
+  "routes": [
+    { "src": "/", "dest": "/index.html" },
+    { "src": "/slides", "dest": "/slides/index.html" },
+    { "src": "/slides/(.*)", "dest": "/slides/$1" },
+    { "src": "/(.*)", "dest": "/$1" }
+  ]
+}
