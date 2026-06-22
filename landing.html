@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mochila 0/1 — Programação Dinâmica</title>
+<title>Mochila 0/1 : Programação Dinâmica</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
 <script src="https://d3js.org/d3.v7.min.js"></script>
@@ -208,6 +208,9 @@ table.dp .result { background:rgba(0,206,201,0.2); color:var(--green); font-weig
     table.dp { font-size:9px; }
     table.dp th, table.dp td { padding:3px 5px; min-width:22px; }
 }
+svg.d3-responsive{width:100%!important;height:auto!important;max-width:100%}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.float{animation:float 5s ease-in-out infinite}
 </style>
 </head>
 <body>
@@ -243,7 +246,7 @@ table.dp .result { background:rgba(0,206,201,0.2); color:var(--green); font-weig
     <div class="flex items-center justify-center gap-6 text-sm faint flex-wrap reveal reveal-d4">
         <span><i data-lucide="user" class="inline w-4 h-4 mr-1 primary"></i>Kumbu Gomes Kuwonza</span>
         <span><i data-lucide="calendar" class="inline w-4 h-4 mr-1 primary"></i>Junho de 2026</span>
-        <span><i data-lucide="map-pin" class="inline w-4 h-4 mr-1 primary"></i>UFC — Campus de Russas</span>
+        <span><i data-lucide="map-pin" class="inline w-4 h-4 mr-1 primary"></i>UFC : Campus de Russas</span>
     </div>
     <div class="mt-12 text-xs faint animate-bounce reveal reveal-d6">↓ Role para explorar</div>
 </section>
@@ -301,7 +304,7 @@ table.dp .result { background:rgba(0,206,201,0.2); color:var(--green); font-weig
                         <span class="w-2 h-2 rounded-full" style="background:var(--green)"></span>
                         <span class="font-semibold text-sm">Sobreposição de Subproblemas</span>
                     </div>
-                    <p class="text-xs subtle">O mesmo par (i, w) é visitado repetidamente — evitamos recalcular com tabela.</p>
+                    <p class="text-xs subtle">O mesmo par (i, w) é visitado repetidamente : evitamos recalcular com tabela.</p>
                 </div>
             </div>
         </div>
@@ -324,7 +327,7 @@ table.dp .result { background:rgba(0,206,201,0.2); color:var(--green); font-weig
                 </div>
             </div>
             <div class="mt-4 pt-4 border-t border-[var(--border)]">
-                <p class="text-xs faint">Richard Bellman (1950) — Princípio da Otimalidade</p>
+                <p class="text-xs faint">Richard Bellman (1950) : Princípio da Otimalidade</p>
             </div>
         </div>
     </div>
@@ -335,7 +338,7 @@ table.dp .result { background:rgba(0,206,201,0.2); color:var(--green); font-weig
 <section class="section" id="problem">
     <div class="text-center mb-8 reveal">
         <span class="badge"><i data-lucide="shopping-bag" class="inline w-3.5 h-3.5 mr-1"></i>O Problema</span>
-        <h2 class="text-4xl md:text-5xl font-black mt-4">Mochila 0/1 — Formulação</h2>
+        <h2 class="text-4xl md:text-5xl font-black mt-4">Mochila 0/1 : Formulação</h2>
     </div>
     <div class="card mb-4">
         <div id="knapsack-viz" style="height:200px;"></div>
@@ -636,7 +639,7 @@ table.dp .result { background:rgba(0,206,201,0.2); color:var(--green); font-weig
         </div>
     </div>
     <div class="card mt-6 p-5 text-center reveal reveal-d3">
-        <p class="text-sm subtle"><span class="text-2xl font-black primary">DP</span> transforma problemas NP-difíceis em soluções pseudo-polinomiais viáveis — um <em>trade-off</em> de espaço por tempo que viabiliza aplicações reais.</p>
+        <p class="text-sm subtle"><span class="text-2xl font-black primary">DP</span> transforma problemas NP-difíceis em soluções pseudo-polinomiais viáveis : um <em>trade-off</em> de espaço por tempo que viabiliza aplicações reais.</p>
     </div>
 </section>
 
@@ -648,9 +651,9 @@ table.dp .result { background:rgba(0,206,201,0.2); color:var(--green); font-weig
     <div class="inline-flex flex-wrap justify-center gap-3 mb-8">
         <span class="tag px-4 py-2"><i data-lucide="terminal" class="inline w-4 h-4 mr-1 primary"></i>knapsack.js</span>
         <span class="tag px-4 py-2"><i data-lucide="globe" class="inline w-4 h-4 mr-1 primary"></i>mochila-01.vercel.app</span>
-        <span class="tag px-4 py-2"><i data-lucide="github" class="inline w-4 h-4 mr-1 primary"></i>github.com/kumbu-kuwonza/mochila-01</span>
+        <span class="tag px-4 py-2"><i data-lucide="link" class="inline w-4 h-4 mr-1 primary"></i>github.com/kumbu-kuwonza/mochila-01</span>
     </div>
-    <p class="text-sm faint">Kumbu Gomes Kuwonza · UFC — Campus de Russas · Junho de 2026</p>
+    <p class="text-sm faint">Kumbu Gomes Kuwonza · UFC : Campus de Russas · Junho de 2026</p>
 </footer>
 
 <script>
@@ -749,7 +752,7 @@ function initKnapsackViz(){const container=document.getElementById('knapsack-viz
 function initForkViz(){const container=document.getElementById('recurrence-viz');if(!container||container.querySelector('.fork-svg'))return;const svgEl=document.createElement('div');svgEl.className='fork-svg';svgEl.style.marginTop='10px';container.appendChild(svgEl);const w=container.clientWidth||600,h=90;const svg=d3.select(svgEl).append('svg').attr('width',w).attr('height',h);const cx=w/2;svg.append('circle').attr('cx',cx).attr('cy',18).attr('r',0).attr('fill','var(--primary)').transition().delay(200).duration(400).attr('r',6);svg.append('line').attr('x1',cx).attr('y1',24).attr('x2',cx-100).attr('y2',60).attr('stroke','var(--softer)').attr('stroke-width',1.5).attr('opacity',0).transition().delay(500).duration(400).attr('opacity',0.5);svg.append('rect').attr('x',cx-155).attr('y',62).attr('width',110).attr('height',22).attr('rx',6).attr('fill','rgba(255,255,255,0.03)').attr('stroke','var(--softer)').attr('stroke-width',1).attr('opacity',0).transition().delay(700).duration(300).attr('opacity',1);svg.append('text').attr('x',cx-100).attr('y',76).attr('text-anchor','middle').attr('fill','var(--softer)').attr('font-size','9px').attr('font-family','JetBrains Mono,monospace').text('dp[i−1][w]').attr('opacity',0).transition().delay(900).duration(300).attr('opacity',1);svg.append('line').attr('x1',cx).attr('y1',24).attr('x2',cx+100).attr('y2',60).attr('stroke','var(--green)').attr('stroke-width',1.5).attr('opacity',0).transition().delay(600).duration(400).attr('opacity',0.5);svg.append('rect').attr('x',cx+45).attr('y',62).attr('width',130).attr('height',22).attr('rx',6).attr('fill','rgba(0,206,201,0.05)').attr('stroke','var(--green)').attr('stroke-width',1).attr('opacity',0).transition().delay(800).duration(300).attr('opacity',1);svg.append('text').attr('x',cx+110).attr('y',76).attr('text-anchor','middle').attr('fill','var(--green)').attr('font-size','9px').attr('font-family','JetBrains Mono,monospace').text('dp[i−1][w−wᵢ] + vᵢ').attr('opacity',0).transition().delay(1000).duration(300).attr('opacity',1);svg.append('circle').attr('cx',cx).attr('cy',78).attr('r',0).attr('fill','var(--primary)').transition().delay(1200).duration(300).attr('r',4);svg.append('text').attr('x',cx).attr('y',92).attr('text-anchor','middle').attr('fill','var(--primary)').attr('font-size','8px').attr('font-weight','600').text('max').attr('opacity',0).transition().delay(1400).duration(300).attr('opacity',1)}
 
 // ── INIT ──
-lucide.createIcons();
+function makeD3Responsive(){document.querySelectorAll("svg:not(.d3-responsive)").forEach(svg=>{const w=svg.getAttribute("width"),h=svg.getAttribute("height");if(w&&h&&parseInt(w)>0){svg.setAttribute("viewBox","0 0 "+w+" "+h);svg.setAttribute("preserveAspectRatio","xMidYMid meet");svg.classList.add("d3-responsive")}})}setTimeout(makeD3Responsive,2000);window.addEventListener("resize",makeD3Responsive);let mx=0.5,my=0.5;document.addEventListener("mousemove",e=>{mx=e.clientX/window.innerWidth;my=e.clientY/window.innerHeight;requestAnimationFrame(()=>{document.querySelectorAll(".card:not(.sim-panel)").forEach((c,i)=>{const ox=(mx-0.5)*(6+i*2),oy=(my-0.5)*(6+i*2);c.style.transform="translate("+ox+"px, "+oy+"px)"})})});lucide.createIcons();
 </script>
 </body>
 </html>
