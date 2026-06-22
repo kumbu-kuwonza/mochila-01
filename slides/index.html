@@ -221,6 +221,10 @@ table.dp .hl { color: var(--green); font-weight: 700; }
 .sim-bar-text { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:600; text-shadow:0 1px 3px rgba(0,0,0,0.5); }
 .sim-dp-btn { background:transparent; border:1px solid var(--primary); color:var(--primary); padding:4px 10px; border-radius:5px; font-size:11px; cursor:pointer; margin-top:6px; }
 .sim-dp-btn:hover { background:rgba(255,144,77,0.1); }
+@keyframes vizPulse { 0%,100% { opacity:0.5; } 50% { opacity:1; } }
+@keyframes vizArrow { 0%,100% { opacity:0.2; } 50% { opacity:0.8; } }
+.pulse-circle { animation:vizPulse 3s ease-in-out infinite; }
+.pulse-arrow { animation:vizArrow 2.5s ease-in-out infinite; }
 .sim-animate-controls { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
 .sim-speed-label { font-size:11px; color:var(--softer); }
 .sim-speed-slider { width:80px; accent-color:var(--primary); cursor:pointer; }
@@ -386,6 +390,7 @@ table.dp .hl { color: var(--green); font-weight: 700; }
                 </div>
             </div>
         </div>
+        <div id="theory-viz" class="card mt-4" style="padding:12px;"></div>
     </div>
 </div>
 
@@ -427,6 +432,7 @@ table.dp .hl { color: var(--green); font-weight: 700; }
                 <p class="text-[10px] faint">Não garante solução ótima</p>
             </div>
         </div>
+        <div id="problem-viz" class="card mt-4" style="padding:12px;"></div>
     </div>
 </div>
 
@@ -462,6 +468,7 @@ table.dp .hl { color: var(--green); font-weight: 700; }
             <span class="tag">Casos base: dp[0][w] = 0</span>
             <span class="tag">dp[i][0] = 0</span>
         </div>
+        <div id="recurrence-viz" class="card mt-4" style="padding:12px;"></div>
     </div>
 </div>
 
@@ -591,6 +598,7 @@ table.dp .hl { color: var(--green); font-weight: 700; }
                 <p class="text-[10px] faint">501 vs 50.000 células</p>
             </div>
         </div>
+        <div id="results-viz" class="card mt-4" style="padding:12px;"></div>
     </div>
 </div>
 
@@ -650,6 +658,7 @@ table.dp .hl { color: var(--green); font-weight: 700; }
                 </div>
             </div>
         </div>
+        <div id="analysis-viz" class="card mt-4" style="padding:12px;"></div>
     </div>
 </div>
 
@@ -820,6 +829,7 @@ function goTo(idx) {
     progressFill.style.width = ((current + 1) / total * 100) + '%';
     prevBtn.disabled = current === 0;
     nextBtn.disabled = current === total - 1;
+    initSlideViz(current);
 }
 
 prevBtn.addEventListener('click', () => goTo(current - 1));
@@ -853,6 +863,414 @@ document.addEventListener('touchend', e => {
 });
 
 goTo(0);
+
+// ====================================================================
+// ILUSTRAÇÕES DINÂMICAS — D3.js
+// ====================================================================
+
+const vizInit = {};
+
+function initSlideViz(idx) {
+    if (vizInit[idx]) return;
+    vizInit[idx] = true;
+    switch (idx) {
+        case 3: initTheoryViz(); break;
+        case 4: initProblemViz(); break;
+        case 5: initRecurrenceViz(); break;
+        case 8: initResultsViz(); break;
+        case 10: initAnalysisViz(); break;
+    }
+}
+
+function initTheoryViz() {
+    const container = document.getElementById('theory-viz');
+    if (!container) return;
+    const w = container.clientWidth || 600;
+    const h = 180;
+    const svg = d3.select(container).append('svg').attr('width', w).attr('height', h);
+
+    // Subproblem overlap network
+    const nodes = [];
+    for (let i = 0; i < 18; i++) {
+        nodes.push({
+            id: i,
+            x: Math.random() * (w - 60) + 30,
+            y: Math.random() * (h - 60) + 30,
+            r: 5 + Math.random() * 8,
+            label: '(i' + (i % 5) + ',w' + (i % 6) + ')'
+        });
+    }
+
+    // Draw edges (connections between overlapping subproblems)
+    const edges = [];
+    for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+            if (Math.random() < 0.18) {
+                edges.push({ source: i, target: j });
+            }
+        }
+    }
+
+    // Draw edges with animation delay
+    edges.forEach((e, idx) => {
+        const src = nodes[e.source], tgt = nodes[e.target];
+        svg.append('line')
+            .attr('x1', src.x).attr('y1', src.y)
+            .attr('x2', tgt.x).attr('y2', tgt.y)
+            .attr('stroke', 'var(--softer)')
+            .attr('stroke-width', 0.4)
+            .attr('opacity', 0)
+            .transition()
+            .delay(idx * 40)
+            .duration(400)
+            .attr('opacity', 0.25);
+    });
+
+    // Draw nodes with pulse animation
+    nodes.forEach((n, idx) => {
+        const g = svg.append('g');
+        g.append('circle')
+            .attr('cx', n.x).attr('cy', n.y)
+            .attr('r', 0)
+            .attr('fill', 'rgba(255,144,77,0.25)')
+            .attr('stroke', 'var(--primary)')
+            .attr('stroke-width', 1)
+            .transition()
+            .delay(idx * 60)
+            .duration(400)
+            .attr('r', n.r);
+
+        g.append('text')
+            .attr('x', n.x).attr('y', n.y + n.r + 10)
+            .attr('text-anchor', 'middle')
+            .attr('fill', 'var(--softer)')
+            .attr('font-size', '7px')
+            .text(n.label)
+            .attr('opacity', 0)
+            .transition()
+            .delay(idx * 60 + 300)
+            .duration(300)
+            .attr('opacity', 0.6);
+
+        g.select('circle').attr('class', 'pulse-circle');
+    });
+
+    // Center label
+    svg.append('text')
+        .attr('x', w / 2).attr('y', 16)
+        .attr('text-anchor', 'middle')
+        .attr('fill', 'var(--primary)')
+        .attr('font-size', '11px')
+        .attr('font-weight', '600')
+        .text('↻ Sobreposição de Subproblemas')
+        .attr('opacity', 0)
+        .transition().delay(1500).duration(500).attr('opacity', 0.8);
+}
+
+function initProblemViz() {
+    const container = document.getElementById('problem-viz');
+    if (!container) return;
+    const w = container.clientWidth || 600;
+    const h = 130;
+    const svg = d3.select(container).append('svg').attr('width', w).attr('height', h);
+
+    const data = [
+        { label: 'Força Bruta', value: 100, color: '#ff7675', sub: 'O(2ⁿ)' },
+        { label: 'Programação Dinâmica', value: 55, color: 'var(--green)', sub: 'O(n·W)' },
+        { label: 'Algoritmo Guloso', value: 20, color: 'var(--softer)', sub: '≈' }
+    ];
+
+    const xScale = d3.scaleLinear().domain([0, 110]).range([80, w - 20]);
+
+    data.forEach((d, i) => {
+        const y = 16 + i * 36;
+        // Label
+        svg.append('text')
+            .attr('x', 76).attr('y', y + 14)
+            .attr('text-anchor', 'end')
+            .attr('fill', d.color)
+            .attr('font-size', '11px')
+            .attr('font-weight', '600')
+            .text(d.label);
+        // Bar (animated)
+        svg.append('rect')
+            .attr('x', 82).attr('y', y)
+            .attr('width', 0)
+            .attr('height', 22)
+            .attr('rx', 4)
+            .attr('fill', d.color.replace('var(--green)', '#00cec9').replace('var(--softer)', 'rgba(255,255,255,0.15)'))
+            .attr('opacity', 0.7)
+            .transition()
+            .delay(i * 300)
+            .duration(800)
+            .ease(d3.easeBounce)
+            .attr('width', xScale(d.value) - 82);
+        // Value text
+        svg.append('text')
+            .attr('x', 86).attr('y', y + 15)
+            .attr('fill', '#fff')
+            .attr('font-size', '10px')
+            .attr('font-weight', '700')
+            .attr('opacity', 0)
+            .transition()
+            .delay(i * 300 + 600)
+            .duration(300)
+            .attr('opacity', 1)
+            .text(d.sub);
+    });
+}
+
+function initRecurrenceViz() {
+    const container = document.getElementById('recurrence-viz');
+    if (!container) return;
+    const w = container.clientWidth || 600;
+    const h = 150;
+    const svg = d3.select(container).append('svg').attr('width', w).attr('height', h);
+
+    const cx = w / 2;
+
+    // Three boxes
+    const boxes = [
+        { x: 20, y: 10, label: 'dp[i−1][w]', sub: 'Não incluir', color: 'var(--softer)' },
+        { x: 20, y: 76, label: 'dp[i−1][w−wᵢ] + vᵢ', sub: 'Incluir o item', color: 'var(--green)' },
+        { x: cx - 40, y: 40, label: 'dp[i][w]', sub: 'Valor ótimo', color: 'var(--primary)' }
+    ];
+
+    // Draw boxes
+    boxes.forEach((b, i) => {
+        const g = svg.append('g').attr('opacity', 0);
+        g.append('rect')
+            .attr('x', b.x).attr('y', b.y)
+            .attr('width', i < 2 ? 160 : 120)
+            .attr('height', 42)
+            .attr('rx', 8)
+            .attr('fill', 'rgba(255,255,255,0.04)')
+            .attr('stroke', b.color)
+            .attr('stroke-width', 1.2)
+            .attr('stroke-dasharray', i < 2 ? '4,2' : '0');
+        g.append('text')
+            .attr('x', b.x + (i < 2 ? 80 : 60)).attr('y', b.y + 18)
+            .attr('text-anchor', 'middle')
+            .attr('fill', b.color)
+            .attr('font-size', '11px')
+            .attr('font-family', 'JetBrains Mono, monospace')
+            .attr('font-weight', '600')
+            .text(b.label);
+        g.append('text')
+            .attr('x', b.x + (i < 2 ? 80 : 60)).attr('y', b.y + 32)
+            .attr('text-anchor', 'middle')
+            .attr('fill', 'var(--softer)')
+            .attr('font-size', '8px')
+            .text(b.sub);
+
+        g.transition().delay(i * 400).duration(500).attr('opacity', 1);
+    });
+
+    // Animated arrows from boxes 0,1 to box 2
+    function drawArrow(x1, y1, x2, y2, delay) {
+        const line = svg.append('line')
+            .attr('x1', x1).attr('y1', y1)
+            .attr('x2', x2).attr('y2', y2)
+            .attr('stroke', 'var(--primary)')
+            .attr('stroke-width', 1.5)
+            .attr('marker-end', 'url(#arrow)')
+            .attr('opacity', 0);
+
+        // Arrow head def
+        if (!svg.select('defs').size()) {
+            svg.append('defs').append('marker')
+                .attr('id', 'arrow')
+                .attr('viewBox', '0 0 10 10')
+                .attr('refX', 5).attr('refY', 5)
+                .attr('markerWidth', 4).attr('markerHeight', 4)
+                .attr('orient', 'auto')
+                .append('path')
+                .attr('d', 'M0,0 L10,5 L0,10 Z')
+                .attr('fill', 'var(--primary)');
+        }
+
+        line.transition().delay(delay).duration(600).attr('opacity', 0.7);
+        line.attr('class', 'pulse-arrow');
+    }
+
+    drawArrow(180, 31, cx - 40, 45, 1500);
+    drawArrow(180, 97, cx - 40, 65, 1800);
+}
+
+function initResultsViz() {
+    const container = document.getElementById('results-viz');
+    if (!container) return;
+    const w = container.clientWidth || 500;
+    const h = 120;
+    const svg = d3.select(container).append('svg').attr('width', w).attr('height', h);
+
+    const data = [
+        { label: 'Matricial', time: 22.90, cells: 50501, color: 'var(--primary)' },
+        { label: 'Otimizada', time: 6.86, cells: 501, color: 'var(--green)' }
+    ];
+
+    const maxTime = 25;
+    const maxCells = 55000;
+    const barW = (w - 120) / 2;
+
+    data.forEach((d, i) => {
+        const x = i === 0 ? 100 : 100 + barW + 30;
+        const y = 15;
+
+        // Time bar
+        const tw = (d.time / maxTime) * (barW - 20);
+        svg.append('rect')
+            .attr('x', x).attr('y', y)
+            .attr('width', 0)
+            .attr('height', 18)
+            .attr('rx', 4)
+            .attr('fill', d.color === 'var(--primary)' ? 'rgba(255,144,77,0.3)' : 'rgba(0,206,201,0.3)')
+            .attr('stroke', d.color)
+            .attr('stroke-width', 1)
+            .transition()
+            .delay(i * 400)
+            .duration(600)
+            .ease(d3.easeBounce)
+            .attr('width', Math.max(tw, 4));
+
+        // Time label
+        svg.append('text')
+            .attr('x', x + 4).attr('y', y + 13)
+            .attr('fill', '#fff')
+            .attr('font-size', '10px')
+            .attr('font-weight', '600')
+            .attr('opacity', 0)
+            .transition()
+            .delay(i * 400 + 400)
+            .duration(300)
+            .attr('opacity', 1)
+            .text(d.label + ': ' + d.time + 'ms');
+
+        // Cells bar
+        const cw = (d.cells / maxCells) * (barW - 20);
+        svg.append('rect')
+            .attr('x', x).attr('y', y + 30)
+            .attr('width', 0)
+            .attr('height', 18)
+            .attr('rx', 4)
+            .attr('fill', d.color === 'var(--primary)' ? 'rgba(255,144,77,0.15)' : 'rgba(0,206,201,0.15)')
+            .attr('stroke', d.color)
+            .attr('stroke-width', 0.5)
+            .attr('stroke-dasharray', '2,2')
+            .transition()
+            .delay(i * 400 + 200)
+            .duration(600)
+            .attr('width', Math.max(cw, 4));
+
+        svg.append('text')
+            .attr('x', x + 4).attr('y', y + 43)
+            .attr('fill', 'var(--softer)')
+            .attr('font-size', '8px')
+            .attr('opacity', 0)
+            .transition()
+            .delay(i * 400 + 600)
+            .duration(300)
+            .attr('opacity', 1)
+            .text(d.cells.toLocaleString('pt-BR') + ' células');
+
+        // Column labels
+        svg.append('text')
+            .attr('x', x + (barW - 20) / 2).attr('y', h - 5)
+            .attr('text-anchor', 'middle')
+            .attr('fill', d.color)
+            .attr('font-size', '10px')
+            .attr('font-weight', '600')
+            .attr('opacity', 0)
+            .transition()
+            .delay(i * 400 + 800)
+            .duration(300)
+            .attr('opacity', 1)
+            .text(d.label);
+    });
+
+    // Y-axis labels
+    svg.append('text').attr('x', 8).attr('y', 28).attr('fill', 'var(--softer)').attr('font-size', '8px').text('Tempo');
+    svg.append('text').attr('x', 8).attr('y', 44).attr('fill', 'var(--softer)').attr('font-size', '8px').text('Memória');
+}
+
+function initAnalysisViz() {
+    const container = document.getElementById('analysis-viz');
+    if (!container) return;
+    const w = container.clientWidth || 500;
+    const h = 90;
+    const svg = d3.select(container).append('svg').attr('width', w).attr('height', h);
+
+    const cx = [w * 0.2, w * 0.5, w * 0.8];
+
+    const data = [
+        { label: 'O(2ⁿ)', r: 36, color: '#ff7675', sub: 'Força Bruta' },
+        { label: 'O(n·W)', r: 28, color: 'var(--primary)', sub: 'DP Matricial' },
+        { label: 'O(W)', r: 16, color: 'var(--green)', sub: 'DP Otimizada' }
+    ];
+
+    data.forEach((d, i) => {
+        const g = svg.append('g')
+            .attr('transform', 'translate(' + cx[i] + ',50)')
+            .attr('opacity', 0);
+
+        // Circle
+        g.append('circle')
+            .attr('r', 0)
+            .attr('fill', d.color === '#ff7675' ? 'rgba(255,118,117,0.15)' : d.color === 'var(--primary)' ? 'rgba(255,144,77,0.15)' : 'rgba(0,206,201,0.15)')
+            .attr('stroke', d.color)
+            .attr('stroke-width', 1.5)
+            .transition()
+            .delay(i * 300)
+            .duration(600)
+            .ease(d3.easeElastic)
+            .attr('r', d.r);
+
+        // Label
+        g.append('text')
+            .attr('y', -d.r - 8)
+            .attr('text-anchor', 'middle')
+            .attr('fill', d.color)
+            .attr('font-size', '11px')
+            .attr('font-weight', '700')
+            .attr('opacity', 0)
+            .transition()
+            .delay(i * 300 + 400)
+            .duration(300)
+            .attr('opacity', 1)
+            .text(d.label);
+
+        g.append('text')
+            .attr('y', d.r + 14)
+            .attr('text-anchor', 'middle')
+            .attr('fill', 'var(--softer)')
+            .attr('font-size', '8px')
+            .attr('opacity', 0)
+            .transition()
+            .delay(i * 300 + 600)
+            .duration(300)
+            .attr('opacity', 1)
+            .text(d.sub);
+    });
+
+    // Connector lines between circles
+    svg.append('line')
+        .attr('x1', cx[0] + 36).attr('y1', 50)
+        .attr('x2', cx[1] - 28).attr('y2', 50)
+        .attr('stroke', 'var(--border)')
+        .attr('stroke-width', 1)
+        .attr('stroke-dasharray', '4,3')
+        .attr('opacity', 0)
+        .transition().delay(1200).duration(500).attr('opacity', 0.4);
+
+    svg.append('line')
+        .attr('x1', cx[1] + 28).attr('y1', 50)
+        .attr('x2', cx[2] - 16).attr('y2', 50)
+        .attr('stroke', 'var(--border)')
+        .attr('stroke-width', 1)
+        .attr('stroke-dasharray', '4,3')
+        .attr('opacity', 0)
+        .transition().delay(1500).duration(500).attr('opacity', 0.4);
+}
 
 // ====================================================================
 // SIMULADOR INTERATIVO — Algoritmo Mochila 0/1
