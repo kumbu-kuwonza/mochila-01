@@ -188,24 +188,52 @@ table.dp .result { background:rgba(0,206,201,0.2); color:var(--green); font-weig
     border-top:1px solid var(--border);
 }
 
+@media (max-width:900px) {
+    .section-hero h1 { font-size:2.5rem !important; }
+    .section-hero img { height:70px !important; }
+}
 @media (max-width:768px) {
-    .section { padding:60px 20px; }
-    .section-hero { padding-top:70px; }
-    #top-nav { gap:0; padding:0 8px; }
-    #top-nav a { font-size:10px; padding:4px 6px; }
-    .card { padding:20px; }
-    .code-block { font-size:11px; padding:12px 14px; }
-    .formula { font-size:14px; padding:12px 16px; }
-    table.dp { font-size:11px; }
-    table.dp th, table.dp td { padding:4px 8px; min-width:30px; }
+    .section { padding:50px 16px; min-height:auto; }
+    .section-hero { padding-top:60px; min-height:auto; }
+    .section-hero h1 { font-size:2rem !important; }
+    .section-hero h2 { font-size:1.8rem !important; }
+    .section-hero img { height:55px !important; }
+    #top-nav { gap:0; padding:0 6px; height:44px; }
+    #top-nav a { font-size:9px; padding:4px 5px; }
+    .card { padding:16px; }
+    .code-block { font-size:10px; padding:10px 12px; }
+    .formula { font-size:13px; padding:10px 12px; }
+    table.dp { font-size:10px; }
+    table.dp th, table.dp td { padding:3px 6px; min-width:28px; }
     .sim-grid { grid-template-columns:1fr; }
     .sim-list { max-height:120px; }
     .sim-kpis { grid-template-columns:1fr; }
+    .sim-input-row { flex-wrap:wrap; }
+    .sim-input-row input { font-size:12px; padding:6px 8px; }
+    .sim-cap-row { gap:6px; flex-wrap:wrap; }
+    .grid-cols-2 { grid-template-columns:1fr !important; }
+    .grid-cols-4 { grid-template-columns:1fr 1fr !important; }
+    .site-footer { padding:40px 20px; }
+    .site-footer h1 { font-size:2.5rem !important; }
 }
 @media (max-width:480px) {
-    .section { padding:40px 12px; }
-    table.dp { font-size:9px; }
-    table.dp th, table.dp td { padding:3px 5px; min-width:22px; }
+    .section { padding:36px 10px; }
+    .section-hero { padding-top:50px; }
+    .section-hero h1 { font-size:1.6rem !important; }
+    .section-hero h2 { font-size:1.4rem !important; }
+    .section-hero img { height:45px !important; }
+    #top-nav a { font-size:8px; padding:3px 4px; }
+    .card { padding:12px; }
+    .code-block { font-size:9px; padding:8px 10px; }
+    .formula { font-size:12px; padding:8px 10px; }
+    table.dp { font-size:8px; }
+    table.dp th, table.dp td { padding:2px 4px; min-width:20px; }
+    .sim-input-row input { font-size:11px; }
+    .sim-btn { font-size:11px; padding:5px 10px; }
+    .grid-cols-4 { grid-template-columns:1fr !important; }
+    .site-footer h1 { font-size:2rem !important; }
+    .site-footer p { font-size:0.85rem !important; }
+    #knapsack-viz { height:160px !important; }
 }
 svg.d3-responsive{width:100%!important;height:auto!important;max-width:100%}
 
