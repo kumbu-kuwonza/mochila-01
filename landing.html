@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mochila 0/1 : Programação Dinâmica</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<script src="https://unpkg.com/lucide@latest"></script>
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -212,7 +211,7 @@ svg.d3-responsive{width:100%!important;height:auto!important;max-width:100%}
 
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
 .float{animation:float 5s ease-in-out infinite}
-[data-lucide]{display:inline-flex!important;align-items:center;justify-content:center}[data-lucide] svg{width:16px!important;height:16px!important;min-width:16px;min-height:16px;max-width:16px;max-height:16px}.badge [data-lucide] svg,.tag [data-lucide] svg{width:12px!important;height:12px!important;min-width:12px;min-height:12px;max-width:12px;max-height:12px}.w-8[data-lucide] svg,.w-6[data-lucide] svg,.w-5[data-lucide] svg{width:auto!important;height:auto!important;min-width:0;min-height:0;max-width:none;max-height:none}</style>
+.badge-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--primary);margin-right:8px;vertical-align:middle;box-shadow:0 0 6px var(--primary)}</style>
 </head>
 <body>
 <canvas id="particles-canvas"></canvas>
@@ -235,7 +234,7 @@ svg.d3-responsive{width:100%!important;height:auto!important;max-width:100%}
 <!-- HERO -->
 <section class="section section-hero" id="hero">
     <div class="reveal reveal-d1">
-        <span class="badge"><i data-lucide="cpu" class="inline-flex mr-1"></i>Projeto e Análise de Algoritmos · UFC</span>
+        <span class="badge"><span class="badge-dot"></span>Projeto e Análise de Algoritmos · UFC</span>
     </div>
     <h1 class="text-5xl md:text-7xl font-black leading-tight my-6 reveal reveal-d2">
         Programação Dinâmica Aplicada<br>ao Problema da <span class="primary">Mochila 0/1</span>
@@ -245,9 +244,9 @@ svg.d3-responsive{width:100%!important;height:auto!important;max-width:100%}
         <span class="font-mono text-sm bg-white/5 px-2 py-0.5 rounded">O(n·W)</span> matricial e <span class="font-mono text-sm bg-white/5 px-2 py-0.5 rounded">O(W)</span> otimizada
     </p>
     <div class="flex items-center justify-center gap-6 text-sm faint flex-wrap reveal reveal-d4">
-        <span><i data-lucide="user" class="inline-flex mr-1 primary"></i>Kumbu Gomes Kuwonza</span>
-        <span><i data-lucide="calendar" class="inline-flex mr-1 primary"></i>Junho de 2026</span>
-        <span><i data-lucide="map-pin" class="inline-flex mr-1 primary"></i>UFC : Campus de Russas</span>
+        <span>Kumbu Gomes Kuwonza</span>
+        <span>Junho de 2026</span>
+        <span>UFC : Campus de Russas</span>
     </div>
     <div class="mt-12 text-xs faint animate-bounce reveal reveal-d6">↓ Role para explorar</div>
 </section>
@@ -255,27 +254,27 @@ svg.d3-responsive{width:100%!important;height:auto!important;max-width:100%}
 <!-- INTRO -->
 <section class="section" id="intro">
     <div class="text-center mb-10 reveal">
-        <span class="badge"><i data-lucide="book-open" class="inline-flex mr-1"></i>Seção 1</span>
+        <span class="badge"><span class="badge-dot"></span>Seção 1</span>
         <h2 class="text-4xl md:text-5xl font-black mt-4">Introdução</h2>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="card reveal reveal-d1">
             <div class="flex items-center gap-3 mb-3">
-                <div class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center"><i data-lucide="zap" class="w-5 h-5 primary"></i></div>
+                <div class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-lg">⚡</div>
                 <h3 class="font-bold">O que é Programação Dinâmica?</h3>
             </div>
             <p class="text-sm subtle leading-relaxed">Técnica algorítmica que decompõe problemas complexos em subproblemas menores, resolvendo cada um <strong>uma única vez</strong> e armazenando os resultados para consulta futura.</p>
         </div>
         <div class="card reveal reveal-d2">
             <div class="flex items-center gap-3 mb-3">
-                <div class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center"><i data-lucide="target" class="w-5 h-5 primary"></i></div>
+                <div class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-lg">🎯</div>
                 <h3 class="font-bold">Objetivo do Trabalho</h3>
             </div>
             <p class="text-sm subtle leading-relaxed">Investigar a aplicação da DP ao problema da Mochila 0/1, consolidando a compreensão teórica e demonstrando a aplicação prática em JavaScript.</p>
         </div>
         <div class="card md:col-span-2 reveal reveal-d3">
             <div class="flex items-center gap-3 mb-3">
-                <div class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center"><i data-lucide="lightbulb" class="w-5 h-5 primary"></i></div>
+                <div class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-lg">💡</div>
                 <h3 class="font-bold">Por que a Mochila 0/1?</h3>
             </div>
             <p class="text-sm subtle leading-relaxed">Problema canônico da otimização combinatória (NP-difícil) que exemplifica perfeitamente as duas propriedades fundamentais da DP: <span class="primary">subestrutura ótima</span> e <span class="green">sobreposição de subproblemas</span>.</p>
@@ -286,7 +285,7 @@ svg.d3-responsive{width:100%!important;height:auto!important;max-width:100%}
 <!-- THEORY -->
 <section class="section" id="theory">
     <div class="text-center mb-10 reveal">
-        <span class="badge"><i data-lucide="book-open" class="inline-flex mr-1"></i>Seção 2</span>
+        <span class="badge"><span class="badge-dot"></span>Seção 2</span>
         <h2 class="text-4xl md:text-5xl font-black mt-4">Fundamentação Teórica</h2>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -338,7 +337,7 @@ svg.d3-responsive{width:100%!important;height:auto!important;max-width:100%}
 <!-- PROBLEM -->
 <section class="section" id="problem">
     <div class="text-center mb-8 reveal">
-        <span class="badge"><i data-lucide="shopping-bag" class="inline-flex mr-1"></i>O Problema</span>
+        <span class="badge"><span class="badge-dot"></span>O Problema</span>
         <h2 class="text-4xl md:text-5xl font-black mt-4">Mochila 0/1 : Formulação</h2>
     </div>
     <div class="card mb-4">
@@ -364,7 +363,7 @@ svg.d3-responsive{width:100%!important;height:auto!important;max-width:100%}
 <!-- RECURRENCE -->
 <section class="section" id="recurrence">
     <div class="text-center mb-8 reveal">
-        <span class="badge"><i data-lucide="function-square" class="inline-flex mr-1"></i>Recorrência</span>
+        <span class="badge"><span class="badge-dot"></span>Recorrência</span>
         <h2 class="text-4xl md:text-5xl font-black mt-4">Definição da Recorrência</h2>
     </div>
     <div class="card mb-6 reveal reveal-d1">
@@ -394,7 +393,7 @@ svg.d3-responsive{width:100%!important;height:auto!important;max-width:100%}
 <!-- TABLE -->
 <section class="section" id="table">
     <div class="text-center mb-8 reveal">
-        <span class="badge"><i data-lucide="grid" class="inline-flex mr-1"></i>Exemplo</span>
+        <span class="badge"><span class="badge-dot"></span>Exemplo</span>
         <h2 class="text-4xl md:text-5xl font-black mt-4">Construção da Tabela DP</h2>
         <p class="subtle mt-2 text-sm">Caso didático: 4 itens, capacidade 8 toneladas</p>
     </div>
@@ -423,7 +422,7 @@ svg.d3-responsive{width:100%!important;height:auto!important;max-width:100%}
 <!-- CODE -->
 <section class="section" id="code">
     <div class="text-center mb-8 reveal">
-        <span class="badge"><i data-lucide="code-2" class="inline-flex mr-1"></i>Implementação</span>
+        <span class="badge"><span class="badge-dot"></span>Implementação</span>
         <h2 class="text-4xl md:text-5xl font-black mt-4">Duas Versões do Algoritmo</h2>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -481,7 +480,7 @@ svg.d3-responsive{width:100%!important;height:auto!important;max-width:100%}
 <!-- SIMULATOR -->
 <section class="section" id="simulator">
     <div class="text-center mb-6 reveal">
-        <span class="badge"><i data-lucide="play-circle" class="inline-flex mr-1"></i>Demo</span>
+        <span class="badge"><span class="badge-dot"></span>Demo</span>
         <h2 class="text-4xl md:text-5xl font-black mt-4">Simulador Interativo</h2>
         <p class="subtle mt-1 text-sm">Adicione itens e execute os dois algoritmos ao vivo</p>
     </div>
@@ -523,7 +522,7 @@ svg.d3-responsive{width:100%!important;height:auto!important;max-width:100%}
 <!-- RESULTS -->
 <section class="section" id="results">
     <div class="text-center mb-8 reveal">
-        <span class="badge"><i data-lucide="bar-chart-3" class="inline-flex mr-1"></i>Resultados</span>
+        <span class="badge"><span class="badge-dot"></span>Resultados</span>
         <h2 class="text-4xl md:text-5xl font-black mt-4">Benchmarks</h2>
         <p class="subtle mt-2 text-sm">Teste: 100 itens aleatórios, capacidade 500</p>
     </div>
@@ -547,7 +546,7 @@ svg.d3-responsive{width:100%!important;height:auto!important;max-width:100%}
 <!-- ANALYSIS -->
 <section class="section" id="analysis">
     <div class="text-center mb-8 reveal">
-        <span class="badge"><i data-lucide="trending-up" class="inline-flex mr-1"></i>Análise</span>
+        <span class="badge"><span class="badge-dot"></span>Análise</span>
         <h2 class="text-4xl md:text-5xl font-black mt-4">Complexidade Computacional</h2>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -583,27 +582,27 @@ svg.d3-responsive{width:100%!important;height:auto!important;max-width:100%}
 <!-- APPLICATIONS -->
 <section class="section" id="applications">
     <div class="text-center mb-10 reveal">
-        <span class="badge"><i data-lucide="globe" class="inline-flex mr-1"></i>Seção 5</span>
+        <span class="badge"><span class="badge-dot"></span>Seção 5</span>
         <h2 class="text-4xl md:text-5xl font-black mt-4">Aplicações em Sistemas Reais</h2>
     </div>
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div class="card p-5 text-center reveal reveal-d1">
-            <div class="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center mx-auto mb-3"><i data-lucide="truck" class="w-6 h-6 primary"></i></div>
+            <div class="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center mx-auto mb-3"></div>
             <h3 class="font-bold text-sm">Transporte e Logística</h3>
             <p class="text-xs subtle mt-2">Carregamento de veículos e roteirização de frotas</p>
         </div>
         <div class="card p-5 text-center reveal reveal-d2">
-            <div class="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center mx-auto mb-3"><i data-lucide="package" class="w-6 h-6 primary"></i></div>
+            <div class="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center mx-auto mb-3"></div>
             <h3 class="font-bold text-sm">Gestão de Estoque</h3>
             <p class="text-xs subtle mt-2">Produtos em espaços limitados de depósito</p>
         </div>
         <div class="card p-5 text-center reveal reveal-d3">
-            <div class="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center mx-auto mb-3"><i data-lucide="cloud" class="w-6 h-6 primary"></i></div>
+            <div class="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center mx-auto mb-3"></div>
             <h3 class="font-bold text-sm">Computação em Nuvem</h3>
             <p class="text-xs subtle mt-2">Alocação de VMs em servidores físicos</p>
         </div>
         <div class="card p-5 text-center reveal reveal-d4">
-            <div class="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center mx-auto mb-3"><i data-lucide="trending-up" class="w-6 h-6 primary"></i></div>
+            <div class="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center mx-auto mb-3"></div>
             <h3 class="font-bold text-sm">Finanças</h3>
             <p class="text-xs subtle mt-2">Seleção de carteira com orçamento limitado</p>
         </div>
@@ -616,7 +615,7 @@ svg.d3-responsive{width:100%!important;height:auto!important;max-width:100%}
 <!-- CONCLUSION -->
 <section class="section" id="conclusion">
     <div class="text-center mb-8 reveal">
-        <span class="badge"><i data-lucide="flag" class="inline-flex mr-1"></i>Conclusão</span>
+        <span class="badge"><span class="badge-dot"></span>Conclusão</span>
         <h2 class="text-4xl md:text-5xl font-black mt-4">Considerações Finais</h2>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -646,13 +645,13 @@ svg.d3-responsive{width:100%!important;height:auto!important;max-width:100%}
 
 <!-- FOOTER -->
 <footer class="site-footer">
-    <div class="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-6"><i data-lucide="graduation-cap" class="w-8 h-8 primary"></i></div>
+    <div class="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-6 text-3xl">🎓</div>
     <h1 class="text-5xl md:text-7xl font-black mb-4">Obrigado!</h1>
     <p class="text-lg subtle max-w-lg mx-auto mb-8 leading-relaxed">Código-fonte, relatório completo e interface interativa disponíveis no repositório do projeto.</p>
     <div class="inline-flex flex-wrap justify-center gap-3 mb-8">
-        <span class="tag px-4 py-2"><i data-lucide="terminal" class="inline-flex mr-1 primary"></i>knapsack.js</span>
-        <span class="tag px-4 py-2"><i data-lucide="globe" class="inline-flex mr-1 primary"></i>mochila-01.vercel.app</span>
-        <span class="tag px-4 py-2"><i data-lucide="link" class="inline-flex mr-1 primary"></i>github.com/kumbu-kuwonza/mochila-01</span>
+        <span class="tag px-4 py-2">knapsack.js</span>
+        <span class="tag px-4 py-2">mochila-01.vercel.app</span>
+        <span class="tag px-4 py-2">github.com/kumbu-kuwonza/mochila-01</span>
     </div>
     <p class="text-sm faint">Kumbu Gomes Kuwonza · UFC : Campus de Russas · Junho de 2026</p>
 </footer>
@@ -753,7 +752,6 @@ function initKnapsackViz(){const container=document.getElementById('knapsack-viz
 function initForkViz(){const container=document.getElementById('recurrence-viz');if(!container||container.querySelector('.fork-svg'))return;const svgEl=document.createElement('div');svgEl.className='fork-svg';svgEl.style.marginTop='10px';container.appendChild(svgEl);const w=container.clientWidth||600,h=90;const svg=d3.select(svgEl).append('svg').attr('width',w).attr('height',h);const cx=w/2;svg.append('circle').attr('cx',cx).attr('cy',18).attr('r',0).attr('fill','var(--primary)').transition().delay(200).duration(400).attr('r',6);svg.append('line').attr('x1',cx).attr('y1',24).attr('x2',cx-100).attr('y2',60).attr('stroke','var(--softer)').attr('stroke-width',1.5).attr('opacity',0).transition().delay(500).duration(400).attr('opacity',0.5);svg.append('rect').attr('x',cx-155).attr('y',62).attr('width',110).attr('height',22).attr('rx',6).attr('fill','rgba(255,255,255,0.03)').attr('stroke','var(--softer)').attr('stroke-width',1).attr('opacity',0).transition().delay(700).duration(300).attr('opacity',1);svg.append('text').attr('x',cx-100).attr('y',76).attr('text-anchor','middle').attr('fill','var(--softer)').attr('font-size','9px').attr('font-family','JetBrains Mono,monospace').text('dp[i−1][w]').attr('opacity',0).transition().delay(900).duration(300).attr('opacity',1);svg.append('line').attr('x1',cx).attr('y1',24).attr('x2',cx+100).attr('y2',60).attr('stroke','var(--green)').attr('stroke-width',1.5).attr('opacity',0).transition().delay(600).duration(400).attr('opacity',0.5);svg.append('rect').attr('x',cx+45).attr('y',62).attr('width',130).attr('height',22).attr('rx',6).attr('fill','rgba(0,206,201,0.05)').attr('stroke','var(--green)').attr('stroke-width',1).attr('opacity',0).transition().delay(800).duration(300).attr('opacity',1);svg.append('text').attr('x',cx+110).attr('y',76).attr('text-anchor','middle').attr('fill','var(--green)').attr('font-size','9px').attr('font-family','JetBrains Mono,monospace').text('dp[i−1][w−wᵢ] + vᵢ').attr('opacity',0).transition().delay(1000).duration(300).attr('opacity',1);svg.append('circle').attr('cx',cx).attr('cy',78).attr('r',0).attr('fill','var(--primary)').transition().delay(1200).duration(300).attr('r',4);svg.append('text').attr('x',cx).attr('y',92).attr('text-anchor','middle').attr('fill','var(--primary)').attr('font-size','8px').attr('font-weight','600').text('max').attr('opacity',0).transition().delay(1400).duration(300).attr('opacity',1)}
 
 // ── INIT ──
-function makeD3Responsive(){document.querySelectorAll("svg:not(.d3-responsive)").forEach(svg=>{const w=svg.getAttribute("width"),h=svg.getAttribute("height");if(w&&h&&parseInt(w)>0){svg.setAttribute("viewBox","0 0 "+w+" "+h);svg.setAttribute("preserveAspectRatio","xMidYMid meet");svg.classList.add("d3-responsive")}})}setTimeout(makeD3Responsive,2000);window.addEventListener("resize",makeD3Responsive);let mx=0.5,my=0.5;document.addEventListener("mousemove",e=>{mx=e.clientX/window.innerWidth;my=e.clientY/window.innerHeight;requestAnimationFrame(()=>{document.querySelectorAll(".card:not(.sim-panel)").forEach((c,i)=>{const ox=(mx-0.5)*(6+i*2),oy=(my-0.5)*(6+i*2);c.style.transform="translate("+ox+"px, "+oy+"px)"})})});lucide.createIcons();
-</script>
+function makeD3Responsive(){document.querySelectorAll("svg:not(.d3-responsive)").forEach(svg=>{const w=svg.getAttribute("width"),h=svg.getAttribute("height");if(w&&h&&parseInt(w)>0){svg.setAttribute("viewBox","0 0 "+w+" "+h);svg.setAttribute("preserveAspectRatio","xMidYMid meet");svg.classList.add("d3-responsive")}})}setTimeout(makeD3Responsive,2000);window.addEventListener("resize",makeD3Responsive);let mx=0.5,my=0.5;document.addEventListener("mousemove",e=>{mx=e.clientX/window.innerWidth;my=e.clientY/window.innerHeight;requestAnimationFrame(()=>{document.querySelectorAll(".card:not(.sim-panel)").forEach((c,i)=>{const ox=(mx-0.5)*(6+i*2),oy=(my-0.5)*(6+i*2);c.style.transform="translate("+ox+"px, "+oy+"px)"})})});</script>
 </body>
 </html>
