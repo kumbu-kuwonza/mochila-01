@@ -276,7 +276,7 @@ table.dp .hl { color: var(--green); font-weight: 700; }
 @keyframes vizArrow { 0%,100% { opacity:0.2; } 50% { opacity:0.8; } }
 .pulse-circle { animation:vizPulse 3s ease-in-out infinite; }
 .pulse-arrow { animation:vizArrow 2.5s ease-in-out infinite; }
-[data-lucide]{display:inline-flex!important;align-items:center;justify-content:center;vertical-align:middle;font-size:inherit}[data-lucide] svg{width:1em!important;height:1em!important;max-width:100%;max-height:100%}
+
 .sim-animate-controls { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
 .sim-speed-label { font-size:11px; color:var(--softer); }
 .sim-speed-slider { width:80px; accent-color:var(--primary); cursor:pointer; }
@@ -301,7 +301,7 @@ table.dp .hl { color: var(--green); font-weight: 700; }
     .sim-cap-row .sim-input { width:70px; }
     .sim-kpis { grid-template-columns:1fr; }
 }
-</style>
+[data-lucide]{display:inline-flex!important;align-items:center;justify-content:center}[data-lucide] svg{width:16px!important;height:16px!important;min-width:16px;min-height:16px;max-width:16px;max-height:16px}.badge [data-lucide] svg,.tag [data-lucide] svg{width:12px!important;height:12px!important;min-width:12px;min-height:12px;max-width:12px;max-height:12px}.w-8[data-lucide] svg,.w-6[data-lucide] svg,.w-5[data-lucide] svg{width:auto!important;height:auto!important;min-width:0;min-height:0;max-width:none;max-height:none}</style>
 </head>
 <body>
 <canvas id="particles-canvas"></canvas>
