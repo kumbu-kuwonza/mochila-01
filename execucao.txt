@@ -1,0 +1,203 @@
+╔══════════════════════════════════════════════════════════════╗
+║   MOCHILA 0/1 – Programação Dinâmica (Bottom-Up)             ║
+║   Disciplina: Projeto e Análise de Algoritmos                ║
+╚══════════════════════════════════════════════════════════════╝
+
+════════════════════════════════════════════════════════════
+  EXEMPLO 1 – Caso básico com 4 itens (didático)
+════════════════════════════════════════════════════════════
+
+  ┌──────┬──────┬───────┐
+  │ Item │ Peso │ Valor │
+  ├──────┼──────┼───────┤
+  │   1  │    2 │     3 │
+  │   2  │    3 │     4 │
+  │   3  │    4 │     5 │
+  │   4  │    5 │     6 │
+  └──────┴──────┴───────┘
+
+  Capacidade da mochila: 8
+
+  ── Versão Matricial (O(n·W) espaço) ──
+  Tempo (matricial): 0.346ms
+  Valor máximo obtido: 10
+  Itens selecionados  : [2, 4]
+
+  Detalhamento:
+  ┌──────┬──────┬───────┐
+  │ Item │ Peso │ Valor │
+  ├──────┼──────┼───────┤
+  │   2  │    3 │     4 │
+  │   4  │    5 │     6 │
+  ├──────┼──────┼───────┤
+  │ TOTAL│    8 │    10 │
+  └──────┴──────┴───────┘
+  Peso utilizado: 8 / 8 (100.0%)
+
+  ── Versão Otimizada (O(W) espaço para valores) ──
+  Tempo (otimizada): 0.167ms
+  Valor máximo obtido: 10
+  Itens selecionados  : [2, 4]
+
+════════════════════════════════════════════════════════════
+  EXEMPLO 2 – Seleção de cargas (maximizar valor do frete)
+════════════════════════════════════════════════════════════
+
+  ┌──────┬──────┬───────┐
+  │ Item │ Peso │ Valor │
+  ├──────┼──────┼───────┤
+  │   1  │   10 │    60 │
+  │   2  │   20 │   100 │
+  │   3  │   30 │   120 │
+  │   4  │   25 │    80 │
+  │   5  │   15 │    50 │
+  │   6  │   40 │   200 │
+  │   7  │    5 │    30 │
+  └──────┴──────┴───────┘
+
+  Capacidade da mochila: 50
+
+  ── Versão Matricial (O(n·W) espaço) ──
+  Tempo (matricial): 0.085ms
+  Valor máximo obtido: 260
+  Itens selecionados  : [1, 6]
+
+  Detalhamento:
+  ┌──────┬──────┬───────┐
+  │ Item │ Peso │ Valor │
+  ├──────┼──────┼───────┤
+  │   1  │   10 │    60 │
+  │   6  │   40 │   200 │
+  ├──────┼──────┼───────┤
+  │ TOTAL│   50 │   260 │
+  └──────┴──────┴───────┘
+  Peso utilizado: 50 / 50 (100.0%)
+
+  ── Versão Otimizada (O(W) espaço para valores) ──
+  Tempo (otimizada): 0.061ms
+  Valor máximo obtido: 260
+  Itens selecionados  : [1, 6]
+
+════════════════════════════════════════════════════════════
+  EXEMPLO 3 – Gestão de inventário (produtos para armazenar)
+════════════════════════════════════════════════════════════
+
+  ┌──────┬──────┬───────┐
+  │ Item │ Peso │ Valor │
+  ├──────┼──────┼───────┤
+  │   1  │   12 │    45 │
+  │   2  │    8 │    30 │
+  │   3  │   15 │    50 │
+  │   4  │    7 │    25 │
+  │   5  │   20 │    70 │
+  │   6  │    5 │    18 │
+  │   7  │   10 │    35 │
+  │   8  │    3 │    12 │
+  └──────┴──────┴───────┘
+
+  Capacidade da mochila: 30
+
+  ── Versão Matricial (O(n·W) espaço) ──
+  Tempo (matricial): 0.074ms
+  Valor máximo obtido: 112
+  Itens selecionados  : [1, 2, 4, 8]
+
+  Detalhamento:
+  ┌──────┬──────┬───────┐
+  │ Item │ Peso │ Valor │
+  ├──────┼──────┼───────┤
+  │   1  │   12 │    45 │
+  │   2  │    8 │    30 │
+  │   4  │    7 │    25 │
+  │   8  │    3 │    12 │
+  ├──────┼──────┼───────┤
+  │ TOTAL│   30 │   112 │
+  └──────┴──────┴───────┘
+  Peso utilizado: 30 / 30 (100.0%)
+
+  ── Versão Otimizada (O(W) espaço para valores) ──
+  Tempo (otimizada): 0.042ms
+  Valor máximo obtido: 112
+  Itens selecionados  : [1, 2, 4, 8]
+
+════════════════════════════════════════════════════════════
+  EXEMPLO 4 – Caso com 12 itens (teste de performance)
+════════════════════════════════════════════════════════════
+
+  ┌──────┬──────┬───────┐
+  │ Item │ Peso │ Valor │
+  ├──────┼──────┼───────┤
+  │   1  │    3 │    40 │
+  │   2  │    7 │    90 │
+  │   3  │    2 │    25 │
+  │   4  │    9 │   110 │
+  │   5  │    4 │    50 │
+  │   6  │    6 │    75 │
+  │   7  │    8 │    95 │
+  │   8  │    1 │    15 │
+  │   9  │    5 │    60 │
+  │  10  │   10 │   130 │
+  │  11  │   11 │   140 │
+  │  12  │   13 │   160 │
+  └──────┴──────┴───────┘
+
+  Capacidade da mochila: 40
+
+  ── Versão Matricial (O(n·W) espaço) ──
+  Tempo (matricial): 0.061ms
+  Valor máximo obtido: 515
+  Itens selecionados  : [1, 2, 3, 6, 8, 10, 11]
+
+  Detalhamento:
+  ┌──────┬──────┬───────┐
+  │ Item │ Peso │ Valor │
+  ├──────┼──────┼───────┤
+  │   1  │    3 │    40 │
+  │   2  │    7 │    90 │
+  │   3  │    2 │    25 │
+  │   6  │    6 │    75 │
+  │   8  │    1 │    15 │
+  │  10  │   10 │   130 │
+  │  11  │   11 │   140 │
+  ├──────┼──────┼───────┤
+  │ TOTAL│   40 │   515 │
+  └──────┴──────┴───────┘
+  Peso utilizado: 40 / 40 (100.0%)
+
+  ── Versão Otimizada (O(W) espaço para valores) ──
+  Tempo (otimizada): 0.072ms
+  Valor máximo obtido: 515
+  Itens selecionados  : [1, 2, 3, 6, 8, 10, 11]
+
+════════════════════════════════════════════════════════════
+  COMPARATIVO: Matricial × Otimizada
+════════════════════════════════════════════════════════════
+
+  Caso de teste: 100 itens, capacidade 500
+
+  Versão Matricial (O(n·W) espaço):
+  matricial: 15.875ms
+  Valor máximo: 2502
+  Itens selecionados: 38 de 100
+
+  Versão Otimizada (O(W) espaço para dp):
+  otimizada: 7.099ms
+  Valor máximo: 2502
+  Itens selecionados: 38 de 100
+
+  ✓ Ambos os algoritmos retornaram o mesmo valor máximo? SIM
+
+  RESUMO DAS DIFERENÇAS:
+  ┌────────────────────┬──────────────────────┬──────────────────────┐
+  │                    │ Matricial            │ Otimizada            │
+  ├────────────────────┼──────────────────────┼──────────────────────┤
+  │ Espaço (valores)   │ O(n × W)             │ O(W)                 │
+  │ Reconstrução       │ keep[n+1][W+1]       │ keep[n+1][W+1]       │
+  │ Iteração do loop   │ crescente (0→W)      │ decrescente (W→0)    │
+  │ Memória total      │ ≈ n×W inteiros       │ ≈ W inteiros + keep  │
+  └────────────────────┴──────────────────────┴──────────────────────┘
+
+╔══════════════════════════════════════════════════════════════╗
+║   Fim da execução.                                          ║
+╚══════════════════════════════════════════════════════════════╝
+
