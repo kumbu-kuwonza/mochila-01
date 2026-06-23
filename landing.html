@@ -209,7 +209,7 @@ table.dp .result { background:rgba(0,206,201,0.2); color:var(--green); font-weig
     table.dp th, table.dp td { padding:3px 5px; min-width:22px; }
 }
 svg.d3-responsive{width:100%!important;height:auto!important;max-width:100%}
-[data-lucide] svg{width:100%!important;height:100%!important;vertical-align:middle}
+[data-lucide]{display:inline-flex!important;align-items:center;justify-content:center;vertical-align:middle;font-size:inherit}[data-lucide] svg{width:1em!important;height:1em!important;max-width:100%;max-height:100%}
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
 .float{animation:float 5s ease-in-out infinite}
 </style>
@@ -235,7 +235,7 @@ svg.d3-responsive{width:100%!important;height:auto!important;max-width:100%}
 <!-- HERO -->
 <section class="section section-hero" id="hero">
     <div class="reveal reveal-d1">
-        <span class="badge"><i data-lucide="cpu" class="inline-flex w-3 h-3 mr-1"></i>Projeto e Análise de Algoritmos · UFC</span>
+        <span class="badge"><i data-lucide="cpu" class="inline-flex mr-1"></i>Projeto e Análise de Algoritmos · UFC</span>
     </div>
     <h1 class="text-5xl md:text-7xl font-black leading-tight my-6 reveal reveal-d2">
         Programação Dinâmica Aplicada<br>ao Problema da <span class="primary">Mochila 0/1</span>
@@ -245,9 +245,9 @@ svg.d3-responsive{width:100%!important;height:auto!important;max-width:100%}
         <span class="font-mono text-sm bg-white/5 px-2 py-0.5 rounded">O(n·W)</span> matricial e <span class="font-mono text-sm bg-white/5 px-2 py-0.5 rounded">O(W)</span> otimizada
     </p>
     <div class="flex items-center justify-center gap-6 text-sm faint flex-wrap reveal reveal-d4">
-        <span><i data-lucide="user" class="inline-flex w-3.5 h-3.5 mr-1 primary"></i>Kumbu Gomes Kuwonza</span>
-        <span><i data-lucide="calendar" class="inline-flex w-3.5 h-3.5 mr-1 primary"></i>Junho de 2026</span>
-        <span><i data-lucide="map-pin" class="inline-flex w-3.5 h-3.5 mr-1 primary"></i>UFC : Campus de Russas</span>
+        <span><i data-lucide="user" class="inline-flex mr-1 primary"></i>Kumbu Gomes Kuwonza</span>
+        <span><i data-lucide="calendar" class="inline-flex mr-1 primary"></i>Junho de 2026</span>
+        <span><i data-lucide="map-pin" class="inline-flex mr-1 primary"></i>UFC : Campus de Russas</span>
     </div>
     <div class="mt-12 text-xs faint animate-bounce reveal reveal-d6">↓ Role para explorar</div>
 </section>
@@ -255,7 +255,7 @@ svg.d3-responsive{width:100%!important;height:auto!important;max-width:100%}
 <!-- INTRO -->
 <section class="section" id="intro">
     <div class="text-center mb-10 reveal">
-        <span class="badge"><i data-lucide="book-open" class="inline-flex w-3 h-3 mr-1"></i>Seção 1</span>
+        <span class="badge"><i data-lucide="book-open" class="inline-flex mr-1"></i>Seção 1</span>
         <h2 class="text-4xl md:text-5xl font-black mt-4">Introdução</h2>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -286,7 +286,7 @@ svg.d3-responsive{width:100%!important;height:auto!important;max-width:100%}
 <!-- THEORY -->
 <section class="section" id="theory">
     <div class="text-center mb-10 reveal">
-        <span class="badge"><i data-lucide="book-open" class="inline-flex w-3 h-3 mr-1"></i>Seção 2</span>
+        <span class="badge"><i data-lucide="book-open" class="inline-flex mr-1"></i>Seção 2</span>
         <h2 class="text-4xl md:text-5xl font-black mt-4">Fundamentação Teórica</h2>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -338,7 +338,7 @@ svg.d3-responsive{width:100%!important;height:auto!important;max-width:100%}
 <!-- PROBLEM -->
 <section class="section" id="problem">
     <div class="text-center mb-8 reveal">
-        <span class="badge"><i data-lucide="shopping-bag" class="inline-flex w-3 h-3 mr-1"></i>O Problema</span>
+        <span class="badge"><i data-lucide="shopping-bag" class="inline-flex mr-1"></i>O Problema</span>
         <h2 class="text-4xl md:text-5xl font-black mt-4">Mochila 0/1 : Formulação</h2>
     </div>
     <div class="card mb-4">
@@ -364,7 +364,7 @@ svg.d3-responsive{width:100%!important;height:auto!important;max-width:100%}
 <!-- RECURRENCE -->
 <section class="section" id="recurrence">
     <div class="text-center mb-8 reveal">
-        <span class="badge"><i data-lucide="function-square" class="inline-flex w-3 h-3 mr-1"></i>Recorrência</span>
+        <span class="badge"><i data-lucide="function-square" class="inline-flex mr-1"></i>Recorrência</span>
         <h2 class="text-4xl md:text-5xl font-black mt-4">Definição da Recorrência</h2>
     </div>
     <div class="card mb-6 reveal reveal-d1">
@@ -394,7 +394,7 @@ svg.d3-responsive{width:100%!important;height:auto!important;max-width:100%}
 <!-- TABLE -->
 <section class="section" id="table">
     <div class="text-center mb-8 reveal">
-        <span class="badge"><i data-lucide="grid" class="inline-flex w-3 h-3 mr-1"></i>Exemplo</span>
+        <span class="badge"><i data-lucide="grid" class="inline-flex mr-1"></i>Exemplo</span>
         <h2 class="text-4xl md:text-5xl font-black mt-4">Construção da Tabela DP</h2>
         <p class="subtle mt-2 text-sm">Caso didático: 4 itens, capacidade 8 toneladas</p>
     </div>
@@ -423,7 +423,7 @@ svg.d3-responsive{width:100%!important;height:auto!important;max-width:100%}
 <!-- CODE -->
 <section class="section" id="code">
     <div class="text-center mb-8 reveal">
-        <span class="badge"><i data-lucide="code-2" class="inline-flex w-3 h-3 mr-1"></i>Implementação</span>
+        <span class="badge"><i data-lucide="code-2" class="inline-flex mr-1"></i>Implementação</span>
         <h2 class="text-4xl md:text-5xl font-black mt-4">Duas Versões do Algoritmo</h2>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -481,7 +481,7 @@ svg.d3-responsive{width:100%!important;height:auto!important;max-width:100%}
 <!-- SIMULATOR -->
 <section class="section" id="simulator">
     <div class="text-center mb-6 reveal">
-        <span class="badge"><i data-lucide="play-circle" class="inline-flex w-3 h-3 mr-1"></i>Demo</span>
+        <span class="badge"><i data-lucide="play-circle" class="inline-flex mr-1"></i>Demo</span>
         <h2 class="text-4xl md:text-5xl font-black mt-4">Simulador Interativo</h2>
         <p class="subtle mt-1 text-sm">Adicione itens e execute os dois algoritmos ao vivo</p>
     </div>
@@ -523,7 +523,7 @@ svg.d3-responsive{width:100%!important;height:auto!important;max-width:100%}
 <!-- RESULTS -->
 <section class="section" id="results">
     <div class="text-center mb-8 reveal">
-        <span class="badge"><i data-lucide="bar-chart-3" class="inline-flex w-3 h-3 mr-1"></i>Resultados</span>
+        <span class="badge"><i data-lucide="bar-chart-3" class="inline-flex mr-1"></i>Resultados</span>
         <h2 class="text-4xl md:text-5xl font-black mt-4">Benchmarks</h2>
         <p class="subtle mt-2 text-sm">Teste: 100 itens aleatórios, capacidade 500</p>
     </div>
@@ -547,7 +547,7 @@ svg.d3-responsive{width:100%!important;height:auto!important;max-width:100%}
 <!-- ANALYSIS -->
 <section class="section" id="analysis">
     <div class="text-center mb-8 reveal">
-        <span class="badge"><i data-lucide="trending-up" class="inline-flex w-3 h-3 mr-1"></i>Análise</span>
+        <span class="badge"><i data-lucide="trending-up" class="inline-flex mr-1"></i>Análise</span>
         <h2 class="text-4xl md:text-5xl font-black mt-4">Complexidade Computacional</h2>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -583,7 +583,7 @@ svg.d3-responsive{width:100%!important;height:auto!important;max-width:100%}
 <!-- APPLICATIONS -->
 <section class="section" id="applications">
     <div class="text-center mb-10 reveal">
-        <span class="badge"><i data-lucide="globe" class="inline-flex w-3 h-3 mr-1"></i>Seção 5</span>
+        <span class="badge"><i data-lucide="globe" class="inline-flex mr-1"></i>Seção 5</span>
         <h2 class="text-4xl md:text-5xl font-black mt-4">Aplicações em Sistemas Reais</h2>
     </div>
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -616,7 +616,7 @@ svg.d3-responsive{width:100%!important;height:auto!important;max-width:100%}
 <!-- CONCLUSION -->
 <section class="section" id="conclusion">
     <div class="text-center mb-8 reveal">
-        <span class="badge"><i data-lucide="flag" class="inline-flex w-3 h-3 mr-1"></i>Conclusão</span>
+        <span class="badge"><i data-lucide="flag" class="inline-flex mr-1"></i>Conclusão</span>
         <h2 class="text-4xl md:text-5xl font-black mt-4">Considerações Finais</h2>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -650,9 +650,9 @@ svg.d3-responsive{width:100%!important;height:auto!important;max-width:100%}
     <h1 class="text-5xl md:text-7xl font-black mb-4">Obrigado!</h1>
     <p class="text-lg subtle max-w-lg mx-auto mb-8 leading-relaxed">Código-fonte, relatório completo e interface interativa disponíveis no repositório do projeto.</p>
     <div class="inline-flex flex-wrap justify-center gap-3 mb-8">
-        <span class="tag px-4 py-2"><i data-lucide="terminal" class="inline-flex w-3.5 h-3.5 mr-1 primary"></i>knapsack.js</span>
-        <span class="tag px-4 py-2"><i data-lucide="globe" class="inline-flex w-3.5 h-3.5 mr-1 primary"></i>mochila-01.vercel.app</span>
-        <span class="tag px-4 py-2"><i data-lucide="link" class="inline-flex w-3.5 h-3.5 mr-1 primary"></i>github.com/kumbu-kuwonza/mochila-01</span>
+        <span class="tag px-4 py-2"><i data-lucide="terminal" class="inline-flex mr-1 primary"></i>knapsack.js</span>
+        <span class="tag px-4 py-2"><i data-lucide="globe" class="inline-flex mr-1 primary"></i>mochila-01.vercel.app</span>
+        <span class="tag px-4 py-2"><i data-lucide="link" class="inline-flex mr-1 primary"></i>github.com/kumbu-kuwonza/mochila-01</span>
     </div>
     <p class="text-sm faint">Kumbu Gomes Kuwonza · UFC : Campus de Russas · Junho de 2026</p>
 </footer>

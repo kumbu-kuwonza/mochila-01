@@ -276,7 +276,7 @@ table.dp .hl { color: var(--green); font-weight: 700; }
 @keyframes vizArrow { 0%,100% { opacity:0.2; } 50% { opacity:0.8; } }
 .pulse-circle { animation:vizPulse 3s ease-in-out infinite; }
 .pulse-arrow { animation:vizArrow 2.5s ease-in-out infinite; }
-[data-lucide] svg { width:100%!important; height:100%!important; vertical-align:middle; }
+[data-lucide]{display:inline-flex!important;align-items:center;justify-content:center;vertical-align:middle;font-size:inherit}[data-lucide] svg{width:1em!important;height:1em!important;max-width:100%;max-height:100%}
 .sim-animate-controls { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
 .sim-speed-label { font-size:11px; color:var(--softer); }
 .sim-speed-slider { width:80px; accent-color:var(--primary); cursor:pointer; }
@@ -311,7 +311,7 @@ table.dp .hl { color: var(--green); font-weight: 700; }
 <div class="slide active" data-slide="0">
     <div class="slide-inner text-center">
         <div class="mb-6">
-            <span class="badge"><i data-lucide="cpu" class="inline-flex w-3 h-3 mr-1"></i>Projeto e Análise de Algoritmos · UFC</span>
+            <span class="badge"><i data-lucide="cpu" class="inline-flex mr-1"></i>Projeto e Análise de Algoritmos · UFC</span>
         </div>
         <h1 class="text-5xl md:text-7xl font-black leading-tight mb-4">
             Programação Dinâmica Aplicada<br>ao Problema da <span class="primary">Mochila 0/1</span>
@@ -321,9 +321,9 @@ table.dp .hl { color: var(--green); font-weight: 700; }
             <span class="font-mono text-sm bg-white/5 px-2 py-0.5 rounded">O(n·W)</span> matricial e <span class="font-mono text-sm bg-white/5 px-2 py-0.5 rounded">O(W)</span> otimizada
         </p>
         <div class="flex items-center justify-center gap-6 text-sm faint flex-wrap">
-            <span><i data-lucide="user" class="inline-flex w-3.5 h-3.5 mr-1 primary"></i>Kumbu Gomes Kuwonza</span>
-            <span><i data-lucide="calendar" class="inline-flex w-3.5 h-3.5 mr-1 primary"></i>Junho de 2026</span>
-            <span><i data-lucide="map-pin" class="inline-flex w-3.5 h-3.5 mr-1 primary"></i>UFC : Campus de Russas</span>
+            <span><i data-lucide="user" class="inline-flex mr-1 primary"></i>Kumbu Gomes Kuwonza</span>
+            <span><i data-lucide="calendar" class="inline-flex mr-1 primary"></i>Junho de 2026</span>
+            <span><i data-lucide="map-pin" class="inline-flex mr-1 primary"></i>UFC : Campus de Russas</span>
         </div>
     </div>
 </div>
@@ -332,7 +332,7 @@ table.dp .hl { color: var(--green); font-weight: 700; }
 <div class="slide" data-slide="1">
     <div class="slide-inner">
         <div class="text-center mb-10">
-            <span class="badge"><i data-lucide="list" class="inline-flex w-3 h-3 mr-1"></i>Roteiro</span>
+            <span class="badge"><i data-lucide="list" class="inline-flex mr-1"></i>Roteiro</span>
             <h2 class="text-4xl md:text-5xl font-black mt-4">Agenda</h2>
         </div>
         <div class="space-y-4 max-w-xl mx-auto">
@@ -364,7 +364,7 @@ table.dp .hl { color: var(--green); font-weight: 700; }
 <div class="slide" data-slide="2">
     <div class="slide-inner">
         <div class="text-center mb-8">
-            <span class="badge"><i data-lucide="book-open" class="inline-flex w-3 h-3 mr-1"></i>Seção 1</span>
+            <span class="badge"><i data-lucide="book-open" class="inline-flex mr-1"></i>Seção 1</span>
             <h2 class="text-4xl md:text-5xl font-black mt-4">Introdução</h2>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -397,7 +397,7 @@ table.dp .hl { color: var(--green); font-weight: 700; }
 <div class="slide" data-slide="3">
     <div class="slide-inner">
         <div class="text-center mb-8">
-            <span class="badge"><i data-lucide="book-open" class="inline-flex w-3 h-3 mr-1"></i>Seção 2</span>
+            <span class="badge"><i data-lucide="book-open" class="inline-flex mr-1"></i>Seção 2</span>
             <h2 class="text-4xl md:text-5xl font-black mt-4">Fundamentação Teórica</h2>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -451,7 +451,7 @@ table.dp .hl { color: var(--green); font-weight: 700; }
 <div class="slide" data-slide="4">
     <div class="slide-inner">
         <div class="text-center mb-6">
-            <span class="badge"><i data-lucide="shopping-bag" class="inline-flex w-3 h-3 mr-1"></i>O Problema</span>
+            <span class="badge"><i data-lucide="shopping-bag" class="inline-flex mr-1"></i>O Problema</span>
             <h2 class="text-4xl md:text-5xl font-black mt-4">Mochila 0/1 : Formulação</h2>
         </div>
         <div class="card mb-4">
@@ -496,7 +496,7 @@ table.dp .hl { color: var(--green); font-weight: 700; }
 <div class="slide" data-slide="5">
     <div class="slide-inner">
         <div class="text-center mb-8">
-            <span class="badge"><i data-lucide="function-square" class="inline-flex w-3 h-3 mr-1"></i>Recorrência</span>
+            <span class="badge"><i data-lucide="function-square" class="inline-flex mr-1"></i>Recorrência</span>
             <h2 class="text-4xl md:text-5xl font-black mt-4">Definição da Recorrência</h2>
         </div>
         <div class="card mb-6">
@@ -532,7 +532,7 @@ table.dp .hl { color: var(--green); font-weight: 700; }
 <div class="slide" data-slide="6">
     <div class="slide-inner">
         <div class="text-center mb-6">
-            <span class="badge"><i data-lucide="grid" class="inline-flex w-3 h-3 mr-1"></i>Exemplo</span>
+            <span class="badge"><i data-lucide="grid" class="inline-flex mr-1"></i>Exemplo</span>
             <h2 class="text-4xl md:text-5xl font-black mt-4">Construção da Tabela DP</h2>
             <p class="subtle mt-2 text-sm">Caso didático: 4 itens, capacidade 8 toneladas</p>
         </div>
@@ -563,7 +563,7 @@ table.dp .hl { color: var(--green); font-weight: 700; }
 <div class="slide" data-slide="7">
     <div class="slide-inner">
         <div class="text-center mb-6">
-            <span class="badge"><i data-lucide="code-2" class="inline-flex w-3 h-3 mr-1"></i>Implementação</span>
+            <span class="badge"><i data-lucide="code-2" class="inline-flex mr-1"></i>Implementação</span>
             <h2 class="text-4xl md:text-5xl font-black mt-4">Duas Versões do Algoritmo</h2>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -624,7 +624,7 @@ table.dp .hl { color: var(--green); font-weight: 700; }
 <div class="slide" data-slide="8">
     <div class="slide-inner">
         <div class="text-center mb-6">
-            <span class="badge"><i data-lucide="bar-chart-3" class="inline-flex w-3 h-3 mr-1"></i>Resultados</span>
+            <span class="badge"><i data-lucide="bar-chart-3" class="inline-flex mr-1"></i>Resultados</span>
             <h2 class="text-4xl md:text-5xl font-black mt-4">Benchmarks</h2>
             <p class="subtle mt-2 text-sm">Teste: 100 itens aleatórios, capacidade 500</p>
         </div>
@@ -662,7 +662,7 @@ table.dp .hl { color: var(--green); font-weight: 700; }
 <div class="slide" data-slide="9">
     <div class="slide-inner">
         <div class="text-center mb-6">
-            <span class="badge"><i data-lucide="clipboard-list" class="inline-flex w-3 h-3 mr-1"></i>Casos de Teste</span>
+            <span class="badge"><i data-lucide="clipboard-list" class="inline-flex mr-1"></i>Casos de Teste</span>
             <h2 class="text-4xl md:text-5xl font-black mt-4">Cenários de Execução</h2>
         </div>
         <div class="card overflow-x-auto">
@@ -675,7 +675,7 @@ table.dp .hl { color: var(--green); font-weight: 700; }
             </table>
         </div>
         <div class="text-center mt-4">
-            <span class="tag"><i data-lucide="check-circle-2" class="inline-flex w-3.5 h-3.5 mr-1 green"></i>100% de aproveitamento em todos os cenários</span>
+            <span class="tag"><i data-lucide="check-circle-2" class="inline-flex mr-1 green"></i>100% de aproveitamento em todos os cenários</span>
         </div>
     </div>
 </div>
@@ -684,7 +684,7 @@ table.dp .hl { color: var(--green); font-weight: 700; }
 <div class="slide" data-slide="10">
     <div class="slide-inner">
         <div class="text-center mb-6">
-            <span class="badge"><i data-lucide="trending-up" class="inline-flex w-3 h-3 mr-1"></i>Análise</span>
+            <span class="badge"><i data-lucide="trending-up" class="inline-flex mr-1"></i>Análise</span>
             <h2 class="text-4xl md:text-5xl font-black mt-4">Complexidade Computacional</h2>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -722,7 +722,7 @@ table.dp .hl { color: var(--green); font-weight: 700; }
 <div class="slide" data-slide="11">
     <div class="slide-inner">
         <div class="text-center mb-8">
-            <span class="badge"><i data-lucide="globe" class="inline-flex w-3 h-3 mr-1"></i>Seção 5</span>
+            <span class="badge"><i data-lucide="globe" class="inline-flex mr-1"></i>Seção 5</span>
             <h2 class="text-4xl md:text-5xl font-black mt-4">Aplicações em Sistemas Reais</h2>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -757,7 +757,7 @@ table.dp .hl { color: var(--green); font-weight: 700; }
 <div class="slide" data-slide="12">
     <div class="slide-inner" style="max-width:1100px;">
         <div class="text-center mb-4">
-            <span class="badge"><i data-lucide="play-circle" class="inline-flex w-3 h-3 mr-1"></i>Demo</span>
+            <span class="badge"><i data-lucide="play-circle" class="inline-flex mr-1"></i>Demo</span>
             <h2 class="text-3xl md:text-4xl font-black mt-2">Simulador Interativo</h2>
             <p class="subtle mt-1 text-sm">Adicione itens e execute os dois algoritmos ao vivo na apresentação</p>
         </div>
@@ -801,7 +801,7 @@ table.dp .hl { color: var(--green); font-weight: 700; }
 <div class="slide" data-slide="13">
     <div class="slide-inner">
         <div class="text-center mb-6">
-            <span class="badge"><i data-lucide="flag" class="inline-flex w-3 h-3 mr-1"></i>Conclusão</span>
+            <span class="badge"><i data-lucide="flag" class="inline-flex mr-1"></i>Conclusão</span>
             <h2 class="text-4xl md:text-5xl font-black mt-4">Considerações Finais</h2>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -837,9 +837,9 @@ table.dp .hl { color: var(--green); font-weight: 700; }
         <h1 class="text-5xl md:text-7xl font-black mb-4">Obrigado!</h1>
         <p class="text-lg subtle max-w-lg mx-auto mb-8 leading-relaxed">Código-fonte, relatório completo e interface interativa disponíveis no repositório do projeto.</p>
         <div class="inline-flex flex-wrap justify-center gap-3 mb-8">
-            <span class="tag px-4 py-2"><i data-lucide="terminal" class="inline-flex w-3.5 h-3.5 mr-1 primary"></i>knapsack.js</span>
-            <span class="tag px-4 py-2"><i data-lucide="globe" class="inline-flex w-3.5 h-3.5 mr-1 primary"></i>mochila-01.vercel.app</span>
-            <span class="tag px-4 py-2"><i data-lucide="book-open" class="inline-flex w-3.5 h-3.5 mr-1 primary"></i>RELATORIO_FINAL.md</span>
+            <span class="tag px-4 py-2"><i data-lucide="terminal" class="inline-flex mr-1 primary"></i>knapsack.js</span>
+            <span class="tag px-4 py-2"><i data-lucide="globe" class="inline-flex mr-1 primary"></i>mochila-01.vercel.app</span>
+            <span class="tag px-4 py-2"><i data-lucide="book-open" class="inline-flex mr-1 primary"></i>RELATORIO_FINAL.md</span>
         </div>
         <p class="text-sm faint">Kumbu Gomes Kuwonza · UFC : Campus de Russas · Junho de 2026</p>
     </div>
